@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import httpx
-from fastapi import FastAPI, HTTPException, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import FastAPI, HTTPException, Request, Form, UploadFile, File
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, HttpUrl
@@ -511,3 +511,84 @@ async def set_preferences(request: Request, dark_mode: Optional[str] = Form(None
 @app.get("/healthz")
 async def healthz():
     return {"status": "ok"}
+
+
+# Export/Import hierarchy
+@app.get("/export")
+async def export_data():
+    data = _load_data()
+    # Download as attachment
+    filename = f"hierarchy-{int(time.time())}.json"
+    return Response(
+        content=json.dumps(data, indent=2),
+        media_type="application/json",
+        headers={"Content-Disposition": f"attachment; filename=\"{filename}\""},
+    )
+
+
+@app.post("/import")
+async def import_data(file: UploadFile = File(...)):
+    # Read and parse uploaded JSON file and replace the current hierarchy.
+    try:
+        raw = await file.read()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Unable to read uploaded file")
+    try:
+        incoming = json.loads(raw.decode("utf-8"))
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON file")
+
+    # Basic validation and normalization
+    if not isinstance(incoming, dict):
+        raise HTTPException(status_code=400, detail="Root JSON must be an object")
+
+    folders = incoming.get("folders")
+    if folders is None:
+        # allow exporting subset; default to empty
+        folders = []
+    if not isinstance(folders, list):
+        raise HTTPException(status_code=400, detail='"folders" must be a list')
+
+    # Normalize folders and nodes; ensure folder_id is consistent
+    norm_folders: List[Dict[str, Any]] = []
+    max_folder_id = 0
+    max_node_id = 0
+    for f in folders:
+        if not isinstance(f, dict):
+            continue
+        fid = int(f.get("id") or 0)
+        name = f.get("name") or ""
+        nodes = f.get("nodes") or []
+        if not isinstance(nodes, list):
+            nodes = []
+        max_folder_id = max(max_folder_id, fid)
+        norm_nodes: List[Dict[str, Any]] = []
+        for n in nodes:
+            if not isinstance(n, dict):
+                continue
+            nid = int(n.get("id") or 0)
+            # Maintain required fields with safe defaults
+            norm_node = {
+                "id": nid,
+                "folder_id": fid,
+                "name": n.get("name") or "",
+                "url": n.get("url") or "",
+                "comment": n.get("comment") or "",
+                "active": bool(n.get("active", True)),
+            }
+            max_node_id = max(max_node_id, nid)
+            norm_nodes.append(norm_node)
+        norm_folders.append({"id": fid, "name": str(name), "nodes": norm_nodes})
+
+    # Recalculate next ids regardless of what the file had
+    new_data = {
+        "next_folder_id": max_folder_id + 1,
+        "next_node_id": max_node_id + 1,
+        "folders": norm_folders,
+    }
+    _save_data(new_data)
+    # After import, redirect to root; if a folder exists, select the first
+    target = "/"
+    if norm_folders:
+        target = f"/?folder_id={norm_folders[0]['id']}"
+    return RedirectResponse(url=target, status_code=303)

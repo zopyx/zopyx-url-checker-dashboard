@@ -45,6 +45,10 @@ Data is stored in a local JSON file at `data.json` in the project root. It conta
 - Test results show below the forms in a compact table.
 - Preferences modal with a dark mode toggle (stored in a cookie).
 
+## Data Export/Import
+- Export: Click the “Export” button in the top navbar to download the current hierarchy JSON (folders, nodes, and next IDs).
+- Import: Click the “Import” button in the navbar to open a modal. Upload a JSON exported file; this replaces the current configuration. Next IDs are recalculated automatically.
+
 ## JSON API Documentation
 All JSON endpoints are unauthenticated and return JSON responses. Content type: `application/json`.
 
@@ -164,6 +168,8 @@ These endpoints power the server-rendered UI and redirect back to the main page.
 - POST /nodes/{node_id}/toggle_active — toggle active flag
 - POST /nodes/{node_id}/test/html — test a single node and render results below forms
 - POST /folders/{folder_id}/test/html — test all nodes in the folder and render results below forms
+- GET /export — download the current hierarchy JSON
+- POST /import — upload a JSON file (multipart/form-data) to replace current hierarchy
 
 ## Notes
 - Authentication/authorization: none (intended for local/network use). Place behind a reverse proxy with auth if needed.
