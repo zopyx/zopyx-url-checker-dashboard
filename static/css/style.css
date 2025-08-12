@@ -1,0 +1,4 @@
+body { background-color: #fafafa; }
+#sidebar { background-color: #fff; }
+.folder-header button { width: 2.2rem; padding: 0.1rem 0; }
+.node-item { border-bottom: 1px dashed #eee; }

@@ -1,0 +1,28 @@
+{
+  "next_folder_id": 9,
+  "next_node_id": 3,
+  "folders": [
+    {
+      "id": 6,
+      "name": "ZOPYX Test",
+      "nodes": [
+        {
+          "id": 1,
+          "folder_id": 6,
+          "name": "onkopediawqeqwe",
+          "url": "https://heise.de/",
+          "comment": "",
+          "active": true
+        },
+        {
+          "id": 2,
+          "folder_id": 6,
+          "name": "Onkopedia Main",
+          "url": "https://onkopedia.com/",
+          "comment": "",
+          "active": true
+        }
+      ]
+    }
+  ]
+}
