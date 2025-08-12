@@ -22,6 +22,9 @@
         <button type="button" class="btn btn-sm {% if theme == 'dark' %}btn-outline-light{% else %}btn-outline-dark{% endif %}" data-bs-toggle="modal" data-bs-target="#preferencesModal">
           <i class="bi bi-gear"></i> Preferences
         </button>
+        <button type="button" class="btn btn-sm {% if theme == 'dark' %}btn-outline-light{% else %}btn-outline-dark{% endif %}" data-bs-toggle="modal" data-bs-target="#aboutModal" title="About this app">
+          <i class="bi bi-info-circle"></i> About
+        </button>
       </div>
     </div>
   </nav>
@@ -212,6 +215,11 @@
                                   <i class="bi bi-play-fill"></i>
                                 </button>
                               </form>
+                              <form method="post" action="/nodes/{{ node.id }}/duplicate" class="d-inline ms-1">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary p-0 px-1" title="Duplicate" aria-label="Duplicate">
+                                  <i class="bi bi-files"></i>
+                                </button>
+                              </form>
                               <button type="button" class="btn btn-sm btn-outline-danger p-0 px-1 ms-1" title="Delete" aria-label="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteNodeRow-{{ node.id }}">
                                 <i class="bi bi-trash"></i>
                               </button>
@@ -272,6 +280,9 @@
               <div class="d-flex gap-2">
                 <form method="post" action="/nodes/{{ selected_node.id }}/test/html" class="m-0">
                   <button type="submit" class="btn btn-outline-primary">Test</button>
+                </form>
+                <form method="post" action="/nodes/{{ selected_node.id }}/duplicate" class="m-0">
+                  <button type="submit" class="btn btn-outline-secondary">Duplicate</button>
                 </form>
                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteNode-{{ selected_node.id }}">Delete</button>
 
@@ -350,6 +361,37 @@
                   </div>
                 </div>
               </div>
+              {% if chart is defined %}
+              <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <span>Response time graph</span>
+                  <span class="small text-muted">
+                    Requests: {{ chart.count_measured }}/{{ chart.count_total }}
+                    &middot;
+                    Avg: {% if chart.avg_ms is not none %}{{ chart.avg_ms }} ms{% else %}n/a{% endif %}
+                  </span>
+                </div>
+                <div class="card-body">
+                  <div class="w-100">
+                    <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" width="100%" height="{{ chart.height }}">
+                      <!-- Bars -->
+                      {% for b in chart.series %}
+                        <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.width }}" height="{{ b.height }}" fill="{{ b.color }}">
+                          <title>{{ b.label }} — {% if b.ms %}{{ b.ms }} ms{% else %}n/a{% endif %}</title>
+                        </rect>
+                      {% endfor %}
+                      <!-- Baseline -->
+                      <line x1="0" y1="{{ chart.height }}" x2="{{ chart.width }}" y2="{{ chart.height }}" stroke="var(--bs-border-color)" stroke-width="1" />
+                    </svg>
+                  </div>
+                  <div class="small text-muted mt-2">
+                    <span class="me-3"><span class="badge" style="background:#198754">&nbsp;</span> OK</span>
+                    <span class="me-3"><span class="badge" style="background:#dc3545">&nbsp;</span> Error/Fail</span>
+                    <span class="me-3"><span class="badge" style="background:#6c757d">&nbsp;</span> Skipped/Inactive</span>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
             {% endif %}
 
             {% if test_result %}
@@ -442,6 +484,24 @@
             <button type="submit" class="btn btn-primary">Save</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Modal -->
+  <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="aboutModalLabel">About</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-0">Vibe Coding Experiment. Written by Andreas Jung using PyCharm and GPT-5</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
       </div>
     </div>
   </div>

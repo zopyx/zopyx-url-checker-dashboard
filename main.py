@@ -4,6 +4,7 @@ import json
 import os
 import time
 import asyncio
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -158,6 +159,62 @@ async def _aprobes(urls: List[str], timeout_seconds: int = 10) -> List[Dict[str,
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
         tasks = [fetch_one(client, u) for u in urls]
         return await asyncio.gather(*tasks)
+
+
+def _build_chart_stats(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Prepare summary and simple SVG bar geometry for response times.
+    - results: list of rows with possibly 'elapsed_ms', 'ok', 'tested' fields
+    Returns dict with: count_total, count_measured, avg_ms (int or None),
+    width, height, series: list of {x,y,width,height,color,label,ms}.
+    """
+    width = 640
+    height = 160
+    gap = 8
+    measured = [r for r in results if isinstance(r.get("elapsed_ms"), int)]
+    count_total = len(results)
+    count_measured = len(measured)
+    avg_ms: Optional[int] = None
+    max_ms = 0
+    if count_measured:
+        total_ms = sum(r.get("elapsed_ms", 0) for r in measured)
+        avg_ms = int(total_ms / count_measured)
+        max_ms = max(r.get("elapsed_ms", 0) for r in measured)
+    if max_ms <= 0:
+        max_ms = 1
+    n = count_total if count_total > 0 else 1
+    bar_width = max(2, int((width - (n + 1) * gap) / n))
+    series: List[Dict[str, Any]] = []
+    for idx, r in enumerate(results):
+        x = gap + idx * (bar_width + gap)
+        ms = r.get("elapsed_ms") if isinstance(r.get("elapsed_ms"), int) else 0
+        h = int((ms / max_ms) * (height - 24))
+        y = height - h
+        if r.get("tested") is False:
+            color = "#6c757d"
+        else:
+            if r.get("ok"):
+                color = "#198754"
+            else:
+                color = "#dc3545" if (r.get("error") is not None or r.get("status_code") is not None) else "#6c757d"
+        label = str(r.get("name") or idx + 1)
+        series.append({
+            "x": x,
+            "y": y,
+            "width": bar_width,
+            "height": h,
+            "color": color,
+            "label": label,
+            "ms": ms,
+        })
+    return {
+        "count_total": count_total,
+        "count_measured": count_measured,
+        "avg_ms": avg_ms,
+        "width": width,
+        "height": height,
+        "gap": gap,
+        "series": series,
+    }
 
 
 # API endpoints (JSON)
@@ -449,6 +506,35 @@ async def form_delete_node(node_id: int):
     raise HTTPException(status_code=404, detail="Node not found")
 
 
+@app.post("/nodes/{node_id}/duplicate")
+async def form_duplicate_node(node_id: int):
+    data = _load_data()
+    src = _find_node(data, node_id)
+    if not src:
+        raise HTTPException(status_code=404, detail="Node not found")
+    folder = _find_folder(data, int(src.get("folder_id")))
+    if not folder:
+        raise HTTPException(status_code=404, detail="Folder not found")
+
+    # Compute next copy name within the folder
+    existing_names = [n.get("name", "") for n in folder.get("nodes", [])]
+    copy_name = _next_copy_name(existing_names, src.get("name", ""))
+
+    new_id = data.get("next_node_id", 1)
+    data["next_node_id"] = new_id + 1
+    new_node = {
+        "id": new_id,
+        "folder_id": int(src.get("folder_id")),
+        "name": copy_name,
+        "url": src.get("url", ""),
+        "comment": src.get("comment", ""),
+        "active": bool(src.get("active", True)),
+    }
+    folder.setdefault("nodes", []).append(new_node)
+    _save_data(data)
+    return RedirectResponse(url=f"/?node_id={new_id}", status_code=303)
+
+
 @app.post("/nodes/{node_id}/toggle_active")
 async def form_toggle_node_active(request: Request, node_id: int):
     data = _load_data()
@@ -515,12 +601,14 @@ async def form_test_node_html(request: Request, node_id: int, keep_folder_contex
         theme = "light"
     # Determine whether to keep folder context (no selected_node) or node context
     selected_node_ctx = None if keep_folder_context else n
+    chart = _build_chart_stats([row])
     ctx = {
         "request": request,
         "folders": data.get("folders", []),
         "selected_folder": selected_folder,
         "selected_node": selected_node_ctx,
         "test_results": [row],
+        "chart": chart,
         "theme": theme,
         "timeout_seconds": timeout_seconds,
     }
@@ -580,12 +668,14 @@ async def form_test_folder_html(request: Request, folder_id: int):
     theme = request.cookies.get("theme", "light")
     if theme not in ("light", "dark"):
         theme = "light"
+    chart = _build_chart_stats(results)
     ctx = {
         "request": request,
         "folders": data.get("folders", []),
         "selected_folder": f,
         "selected_node": None,
         "test_results": results,
+        "chart": chart,
         "theme": theme,
         "timeout_seconds": timeout_seconds,
     }
@@ -725,3 +815,29 @@ async def import_data(file: UploadFile = File(...)):
     if norm_folders:
         target = f"/?folder_id={norm_folders[0]['id']}"
     return RedirectResponse(url=target, status_code=303)
+
+
+def _next_copy_name(existing_names: List[str], original_name: str) -> str:
+    """Compute the next copy name like copy_N_<base>.
+    If original_name is already a copy (copy_N_base), treat <base> as the base name.
+    Ensures uniqueness among existing_names in the folder.
+    """
+    base = original_name
+    m = re.match(r"^copy_(\d+)_+(.*)$", original_name)
+    if m and m.group(2):
+        base = m.group(2)
+    max_n = 0
+    pattern = re.compile(rf"^copy_(\d+)_+{re.escape(base)}$")
+    for nm in existing_names:
+        mm = pattern.match(nm)
+        if mm:
+            try:
+                max_n = max(max_n, int(mm.group(1)))
+            except Exception:
+                pass
+    n = max_n + 1
+    candidate = f"copy_{n}_{base}"
+    while candidate in existing_names:
+        n += 1
+        candidate = f"copy_{n}_{base}"
+    return candidate

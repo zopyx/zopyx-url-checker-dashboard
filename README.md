@@ -168,6 +168,7 @@ These endpoints power the server-rendered UI and redirect back to the main page.
 - POST /nodes/{node_id}/edit — edit a node (form fields: name, url, comment, active)
 - POST /nodes/{node_id}/delete — delete a node
 - POST /nodes/{node_id}/toggle_active — toggle active flag
+- POST /nodes/{node_id}/duplicate — duplicate a node (creates copy_N_<base> in same folder)
 - POST /nodes/{node_id}/test/html — test a single node and render results below forms
 - POST /folders/{folder_id}/test/html — test all nodes in the folder and render results below forms
 - GET /export — download the current hierarchy JSON
@@ -178,3 +179,7 @@ These endpoints power the server-rendered UI and redirect back to the main page.
 - Timeouts: Configurable via Preferences (default 10 seconds) per request when probing URLs.
 - Redirects: HTTP redirects are followed during probes.
 - Dark mode preference is stored in a cookie (`theme` = `light`/`dark`).
+
+
+## Visualization
+- After running tests, the page shows a compact response time chart (inline SVG) beneath the results table, including number of requests (measured/total) and average response time.
