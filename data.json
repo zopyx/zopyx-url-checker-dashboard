@@ -1,6 +1,6 @@
 {
-  "next_folder_id": 11,
-  "next_node_id": 63,
+  "next_folder_id": 12,
+  "next_node_id": 64,
   "folders": [
     {
       "id": 6,
@@ -60,6 +60,20 @@
       "id": 10,
       "name": "Folder 2",
       "nodes": []
+    },
+    {
+      "id": 11,
+      "name": "Gemini Test Folder",
+      "nodes": [
+        {
+          "id": 63,
+          "folder_id": 11,
+          "name": "Gemini Test URL",
+          "url": "https://gemini.google.com/",
+          "comment": "A test URL added by Gemini",
+          "active": true
+        }
+      ]
     }
   ]
 }
