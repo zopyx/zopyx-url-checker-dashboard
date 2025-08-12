@@ -26,6 +26,7 @@ Then open http://127.0.0.1:8000/ in your browser.
   - Add, edit, delete
   - Fields: Name, URL, Comment, Active
   - Test availability (HTTP GET) with status and latency; results shown on page
+  - Preferences modal with Dark Mode toggle (persists in cookie)
 
 ## Data Persistence
 Data is stored in a local `data.json` file in the project root using a simple file-based approach.

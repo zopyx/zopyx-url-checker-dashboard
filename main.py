@@ -81,12 +81,16 @@ async def index(request: Request, folder_id: Optional[int] = None, node_id: Opti
             selected_folder = _find_folder(data, selected_node.get("folder_id"))
     elif folder_id is not None:
         selected_folder = _find_folder(data, folder_id)
+    theme = request.cookies.get("theme", "light")
+    if theme not in ("light", "dark"):
+        theme = "light"
     ctx = {
         "request": request,
         "folders": data.get("folders", []),
         "test_result": None,
         "selected_folder": selected_folder,
         "selected_node": selected_node,
+        "theme": theme,
     }
     return templates.TemplateResponse("index.html", ctx)
 
@@ -394,6 +398,34 @@ async def form_delete_node(node_id: int):
     raise HTTPException(status_code=404, detail="Node not found")
 
 
+@app.post("/nodes/{node_id}/toggle_active")
+async def form_toggle_node_active(request: Request, node_id: int):
+    data = _load_data()
+    n = _find_node(data, node_id)
+    if not n:
+        raise HTTPException(status_code=404, detail="Node not found")
+    n["active"] = not bool(n.get("active", True))
+    _save_data(data)
+
+    # Compute a safe GET redirect target. Avoid redirecting back to POST-only paths like /folders/{id}/test/html.
+    target_url = f"/?folder_id={n.get('folder_id')}"
+    ref = request.headers.get("referer") or ""
+    try:
+        from urllib.parse import urlparse, parse_qs
+        pr = urlparse(ref)
+        # If the referer path is not a POST-only endpoint, try to preserve selection from its query string.
+        if not pr.path.endswith("/test/html"):
+            qs = parse_qs(pr.query or "")
+            if qs.get("node_id") and qs["node_id"][0].isdigit():
+                target_url = f"/?node_id={qs['node_id'][0]}"
+            elif qs.get("folder_id") and qs["folder_id"][0].isdigit():
+                target_url = f"/?folder_id={qs['folder_id'][0]}"
+    except Exception:
+        pass
+
+    return RedirectResponse(url=target_url, status_code=303)
+
+
 @app.post("/nodes/{node_id}/test/html")
 async def form_test_node_html(request: Request, node_id: int):
     # Run test and show results table (same layout as multi-URL); keep the node selected on the right pane
@@ -416,12 +448,16 @@ async def form_test_node_html(request: Request, node_id: int):
         row.update(probe)
 
     selected_folder = _find_folder(data, n.get("folder_id")) if n else None
+    theme = request.cookies.get("theme", "light")
+    if theme not in ("light", "dark"):
+        theme = "light"
     ctx = {
         "request": request,
         "folders": data.get("folders", []),
         "selected_folder": selected_folder,
         "selected_node": n,
         "test_results": [row],
+        "theme": theme,
     }
     return templates.TemplateResponse("index.html", ctx)
 
@@ -446,14 +482,29 @@ async def form_test_folder_html(request: Request, folder_id: int):
             probe = _probe_url(row["url"]) 
             row.update(probe)
         results.append(row)
+    theme = request.cookies.get("theme", "light")
+    if theme not in ("light", "dark"):
+        theme = "light"
     ctx = {
         "request": request,
         "folders": data.get("folders", []),
         "selected_folder": f,
         "selected_node": None,
         "test_results": results,
+        "theme": theme,
     }
     return templates.TemplateResponse("index.html", ctx)
+
+
+@app.post("/preferences")
+async def set_preferences(request: Request, dark_mode: Optional[str] = Form(None)):
+    # Determine where to redirect back to
+    referer = request.headers.get("referer") or "/"
+    theme = "dark" if dark_mode else "light"
+    response = RedirectResponse(url=referer, status_code=303)
+    # Persist for a year
+    response.set_cookie(key="theme", value=theme, max_age=60*60*24*365, httponly=False, samesite="lax")
+    return response
 
 
 # Basic healthcheck

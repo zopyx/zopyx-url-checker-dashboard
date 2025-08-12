@@ -1,5 +1,5 @@
 {
-  "next_folder_id": 9,
+  "next_folder_id": 10,
   "next_node_id": 3,
   "folders": [
     {
@@ -12,17 +12,22 @@
           "name": "onkopediawqeqwe",
           "url": "https://heise.de/",
           "comment": "",
-          "active": true
+          "active": false
         },
         {
           "id": 2,
           "folder_id": 6,
           "name": "Onkopedia Main",
           "url": "https://onkopedia.com/",
-          "comment": "",
-          "active": true
+          "comment": "hello",
+          "active": false
         }
       ]
+    },
+    {
+      "id": 9,
+      "name": "Hello world",
+      "nodes": []
     }
   ]
 }
