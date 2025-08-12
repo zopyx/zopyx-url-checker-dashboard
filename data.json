@@ -1,6 +1,6 @@
 {
-  "next_folder_id": 10,
-  "next_node_id": 3,
+  "next_folder_id": 11,
+  "next_node_id": 8,
   "folders": [
     {
       "id": 6,
@@ -12,7 +12,7 @@
           "name": "onkopediawqeqwe",
           "url": "https://heise.de/",
           "comment": "",
-          "active": false
+          "active": true
         },
         {
           "id": 2,
@@ -21,12 +21,20 @@
           "url": "https://onkopedia.com/",
           "comment": "hello",
           "active": true
+        },
+        {
+          "id": 3,
+          "folder_id": 6,
+          "name": "Ajung",
+          "url": "https://andreas-jung.com/",
+          "comment": "",
+          "active": true
         }
       ]
     },
     {
-      "id": 9,
-      "name": "Hello world",
+      "id": 10,
+      "name": "Folder 2",
       "nodes": []
     }
   ]

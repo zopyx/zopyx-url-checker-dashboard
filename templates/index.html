@@ -9,17 +9,17 @@
   <link href="/static/css/style.css" rel="stylesheet" />
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg {% if theme == 'dark' %}navbar-dark bg-dark{% else %}navbar-light bg-light{% endif %}">
     <div class="container-fluid">
       <a class="navbar-brand" href="/">URL Availability Dashboard</a>
       <div class="ms-auto d-flex gap-2">
-        <a href="/export" class="btn btn-outline-light btn-sm" title="Export hierarchy as JSON">
+        <a href="/export" class="btn btn-sm {% if theme == 'dark' %}btn-outline-light{% else %}btn-outline-dark{% endif %}" title="Export hierarchy as JSON">
           <i class="bi bi-download"></i> Export
         </a>
-        <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#importModal" title="Import hierarchy from JSON">
+        <button type="button" class="btn btn-sm {% if theme == 'dark' %}btn-outline-light{% else %}btn-outline-dark{% endif %}" data-bs-toggle="modal" data-bs-target="#importModal" title="Import hierarchy from JSON">
           <i class="bi bi-upload"></i> Import
         </button>
-        <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#preferencesModal">
+        <button type="button" class="btn btn-sm {% if theme == 'dark' %}btn-outline-light{% else %}btn-outline-dark{% endif %}" data-bs-toggle="modal" data-bs-target="#preferencesModal">
           <i class="bi bi-gear"></i> Preferences
         </button>
       </div>
@@ -207,10 +207,35 @@
                             </td>
                             <td class="text-end">
                               <form method="post" action="/nodes/{{ node.id }}/test/html" class="d-inline">
+                                <input type="hidden" name="keep_folder_context" value="1" />
                                 <button type="submit" class="btn btn-sm btn-outline-primary p-0 px-1" title="Test" aria-label="Test">
                                   <i class="bi bi-play-fill"></i>
                                 </button>
                               </form>
+                              <button type="button" class="btn btn-sm btn-outline-danger p-0 px-1 ms-1" title="Delete" aria-label="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteNodeRow-{{ node.id }}">
+                                <i class="bi bi-trash"></i>
+                              </button>
+
+                              <!-- Delete Node (row) Modal -->
+                              <div class="modal fade" id="confirmDeleteNodeRow-{{ node.id }}" tabindex="-1" aria-labelledby="confirmDeleteNodeRowLabel-{{ node.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="confirmDeleteNodeRowLabel-{{ node.id }}">Delete URL</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      Are you sure you want to delete the URL &quot;{{ node.name }}&quot;? This action cannot be undone.
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                      <form method="post" action="/nodes/{{ node.id }}/delete" class="m-0">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                      </form>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             </td>
                           </tr>
                         {% endfor %}
@@ -284,6 +309,7 @@
                           <th>Name</th>
                           <th>URL</th>
                           <th>Active</th>
+                          <th>Fetch</th>
                           <th>Status</th>
                           <th>OK</th>
                           <th>Response time</th>
@@ -296,6 +322,23 @@
                             <td class="text-nowrap">{{ r.name }}</td>
                             <td class="text-truncate" style="max-width: 360px"><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.url }}</a></td>
                             <td>{% if r.active %}<span class="badge bg-success">active</span>{% else %}<span class="badge bg-secondary">inactive</span>{% endif %}</td>
+                            <td>
+                                                          {% if r.tested == false %}
+                                                            <span class="text-muted" title="Skipped"><i class="bi bi-dash-circle"></i></span>
+                                                            <span class="small text-muted ms-1">{{ r.fetch or 'skipped' }}</span>
+                                                          {% elif r.status_code is defined or r.error is defined %}
+                                                            {% if r.ok %}
+                                                              <span class="text-success" title="Success"><i class="bi bi-check-circle-fill"></i></span>
+                                                            {% else %}
+                                                              <span class="text-danger" title="Error"><i class="bi bi-x-circle-fill"></i></span>
+                                                            {% endif %}
+                                                            <span class="small text-muted ms-1">{{ r.fetch }}</span>
+                                                          {% else %}
+                                                            <span class="spinner-border spinner-border-sm text-info" role="status" aria-hidden="true"></span>
+                                                            <span class="visually-hidden">Loading...</span>
+                                                            <span class="small text-muted ms-1">{{ r.fetch }}</span>
+                                                          {% endif %}
+                                                        </td>
                             <td>{% if r.status_code %}<span class="badge {% if r.ok %}bg-success{% else %}bg-danger{% endif %}">{{ r.status_code }}</span>{% else %}-{% endif %}</td>
                             <td>{% if r.ok %}<span class="badge bg-success">OK</span>{% elif r.tested == false %}<span class="badge bg-secondary">n/a</span>{% else %}<span class="badge bg-danger">FAIL</span>{% endif %}</td>
                             <td>{% if r.elapsed_ms is defined %}{{ r.elapsed_ms }} ms{% else %}-{% endif %}</td>
@@ -378,9 +421,20 @@
         </div>
         <form method="post" action="/preferences">
           <div class="modal-body">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="pref-dark-mode" name="dark_mode" {% if theme == 'dark' %}checked{% endif %}>
-              <label class="form-check-label" for="pref-dark-mode">Dark mode</label>
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                {% if theme == 'dark' %}
+                <input class="form-check-input" type="checkbox" role="switch" id="pref-dark-mode" name="dark_mode" checked>
+                {% else %}
+                <input class="form-check-input" type="checkbox" role="switch" id="pref-dark-mode" name="dark_mode">
+                {% endif %}
+                <label class="form-check-label" for="pref-dark-mode">Dark mode</label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="pref-timeout" class="form-label">Timeout (seconds)</label>
+              <input type="number" min="1" max="120" class="form-control" id="pref-timeout" name="timeout_seconds" value="{{ timeout_seconds or 10 }}" />
+              <div class="form-text">Applied to URL fetch operations. Range 1–120 seconds.</div>
             </div>
           </div>
           <div class="modal-footer">

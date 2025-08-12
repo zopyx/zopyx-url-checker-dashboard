@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import time
+import asyncio
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -84,6 +85,14 @@ async def index(request: Request, folder_id: Optional[int] = None, node_id: Opti
     theme = request.cookies.get("theme", "light")
     if theme not in ("light", "dark"):
         theme = "light"
+    try:
+        timeout_seconds = int(request.cookies.get("timeout", "10"))
+    except Exception:
+        timeout_seconds = 10
+    if timeout_seconds < 1:
+        timeout_seconds = 1
+    if timeout_seconds > 120:
+        timeout_seconds = 120
     ctx = {
         "request": request,
         "folders": data.get("folders", []),
@@ -91,6 +100,7 @@ async def index(request: Request, folder_id: Optional[int] = None, node_id: Opti
         "selected_folder": selected_folder,
         "selected_node": selected_node,
         "theme": theme,
+        "timeout_seconds": timeout_seconds,
     }
     return templates.TemplateResponse("index.html", ctx)
 
@@ -112,10 +122,10 @@ def _find_node(data: Dict[str, Any], node_id: int) -> Optional[Dict[str, Any]]:
     return None
 
 
-def _probe_url(url: str) -> Dict[str, Any]:
+def _probe_url(url: str, timeout_seconds: int = 10) -> Dict[str, Any]:
     t0 = time.perf_counter()
     try:
-        timeout = httpx.Timeout(10.0)
+        timeout = httpx.Timeout(timeout_seconds)
         with httpx.Client(timeout=timeout, follow_redirects=True) as client:
             resp = client.get(url)
         elapsed_ms = int((time.perf_counter() - t0) * 1000)
@@ -131,6 +141,23 @@ def _probe_url(url: str) -> Dict[str, Any]:
             "error": str(e),
             "elapsed_ms": elapsed_ms,
         }
+
+
+async def _aprobes(urls: List[str], timeout_seconds: int = 10) -> List[Dict[str, Any]]:
+    async def fetch_one(client: httpx.AsyncClient, url: str) -> Dict[str, Any]:
+        t0 = time.perf_counter()
+        try:
+            resp = await client.get(url)
+            elapsed_ms = int((time.perf_counter() - t0) * 1000)
+            return {"ok": resp.is_success, "status_code": resp.status_code, "elapsed_ms": elapsed_ms}
+        except Exception as e:
+            elapsed_ms = int((time.perf_counter() - t0) * 1000)
+            return {"ok": False, "error": str(e), "elapsed_ms": elapsed_ms}
+
+    timeout = httpx.Timeout(timeout_seconds)
+    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+        tasks = [fetch_one(client, u) for u in urls]
+        return await asyncio.gather(*tasks)
 
 
 # API endpoints (JSON)
@@ -248,20 +275,44 @@ async def test_folder(folder_id: int) -> Dict[str, Any]:
     f = _find_folder(data, folder_id)
     if not f:
         raise HTTPException(status_code=404, detail="Folder not found")
+
+    nodes = f.get("nodes", []) or []
+    # Prepare order and active mask
+    active_urls: List[str] = []
+    active_indices: List[int] = []
+    for idx, n in enumerate(nodes):
+        if bool(n.get("active", True)):
+            active_urls.append(n.get("url"))
+            active_indices.append(idx)
+    # Run active URLs in parallel with default timeout 10s
+    parallel_results: List[Dict[str, Any]] = []
+    if active_urls:
+        parallel_results = await _aprobes(active_urls, timeout_seconds=10)
+
+    # Stitch results back preserving order
     results: List[Dict[str, Any]] = []
-    for n in f.get("nodes", []) or []:
-        entry = {
+    pr_iter = iter(parallel_results)
+    next_map: Dict[int, Dict[str, Any]] = {}
+    # Build a map from active index to result
+    for i, res in zip(active_indices, parallel_results):
+        next_map[i] = res
+
+    for idx, n in enumerate(nodes):
+        row = {
             "id": n.get("id"),
             "name": n.get("name"),
             "url": n.get("url"),
             "active": bool(n.get("active", True)),
         }
-        if not entry["active"]:
-            entry.update({"tested": False, "reason": "Node inactive"})
+        if not row["active"]:
+            row.update({"tested": False, "reason": "Node inactive", "fetch": "skipped"})
         else:
-            probe = _probe_url(entry["url"]) 
-            entry.update(probe)
-        results.append(entry)
+            probe = next_map.get(idx, {})
+            probe = dict(probe)
+            probe["fetch"] = "parallel"
+            row.update(probe)
+        results.append(row)
+
     return {"folder_id": folder_id, "results": results}
 
 
@@ -427,12 +478,22 @@ async def form_toggle_node_active(request: Request, node_id: int):
 
 
 @app.post("/nodes/{node_id}/test/html")
-async def form_test_node_html(request: Request, node_id: int):
-    # Run test and show results table (same layout as multi-URL); keep the node selected on the right pane
+async def form_test_node_html(request: Request, node_id: int, keep_folder_context: Optional[str] = Form(None)):
+    # Run test and show results table (same layout as multi-URL); by default keep the node selected
     data = _load_data()
     n = _find_node(data, node_id)
     if not n:
         raise HTTPException(status_code=404, detail="Node not found")
+
+    # Get timeout preference
+    try:
+        timeout_seconds = int(request.cookies.get("timeout", "10"))
+    except Exception:
+        timeout_seconds = 10
+    if timeout_seconds < 1:
+        timeout_seconds = 1
+    if timeout_seconds > 120:
+        timeout_seconds = 120
 
     # Build a single-row results list consistent with folder test rows
     row: Dict[str, Any] = {
@@ -442,22 +503,26 @@ async def form_test_node_html(request: Request, node_id: int):
         "active": bool(n.get("active", True)),
     }
     if not row["active"]:
-        row.update({"tested": False, "reason": "Node inactive"})
+        row.update({"tested": False, "reason": "Node inactive", "fetch": "skipped"})
     else:
-        probe = _probe_url(row["url"])  # includes ok, status_code, elapsed_ms or error
+        probe = _probe_url(row["url"], timeout_seconds=timeout_seconds)  # includes ok, status_code, elapsed_ms or error
+        probe["fetch"] = "single"
         row.update(probe)
 
     selected_folder = _find_folder(data, n.get("folder_id")) if n else None
     theme = request.cookies.get("theme", "light")
     if theme not in ("light", "dark"):
         theme = "light"
+    # Determine whether to keep folder context (no selected_node) or node context
+    selected_node_ctx = None if keep_folder_context else n
     ctx = {
         "request": request,
         "folders": data.get("folders", []),
         "selected_folder": selected_folder,
-        "selected_node": n,
+        "selected_node": selected_node_ctx,
         "test_results": [row],
         "theme": theme,
+        "timeout_seconds": timeout_seconds,
     }
     return templates.TemplateResponse("index.html", ctx)
 
@@ -468,8 +533,36 @@ async def form_test_folder_html(request: Request, folder_id: int):
     f = _find_folder(data, folder_id)
     if not f:
         raise HTTPException(status_code=404, detail="Folder not found")
+
+    # Get timeout preference
+    try:
+        timeout_seconds = int(request.cookies.get("timeout", "10"))
+    except Exception:
+        timeout_seconds = 10
+    if timeout_seconds < 1:
+        timeout_seconds = 1
+    if timeout_seconds > 120:
+        timeout_seconds = 120
+
+    nodes = f.get("nodes", []) or []
+    active_urls: List[str] = []
+    active_indices: List[int] = []
+    for idx, n in enumerate(nodes):
+        if bool(n.get("active", True)):
+            active_urls.append(n.get("url"))
+            active_indices.append(idx)
+
+    parallel_results: List[Dict[str, Any]] = []
+    if active_urls:
+        parallel_results = await _aprobes(active_urls, timeout_seconds=timeout_seconds)
+
+    # Map active index to its probe result
+    idx_to_result: Dict[int, Dict[str, Any]] = {}
+    for i, res in zip(active_indices, parallel_results):
+        idx_to_result[i] = res
+
     results: List[Dict[str, Any]] = []
-    for n in f.get("nodes", []) or []:
+    for idx, n in enumerate(nodes):
         row = {
             "id": n.get("id"),
             "name": n.get("name"),
@@ -477,11 +570,13 @@ async def form_test_folder_html(request: Request, folder_id: int):
             "active": bool(n.get("active", True)),
         }
         if not row["active"]:
-            row.update({"tested": False, "reason": "Node inactive"})
+            row.update({"tested": False, "reason": "Node inactive", "fetch": "skipped"})
         else:
-            probe = _probe_url(row["url"]) 
+            probe = dict(idx_to_result.get(idx, {}))
+            probe["fetch"] = "parallel"
             row.update(probe)
         results.append(row)
+
     theme = request.cookies.get("theme", "light")
     if theme not in ("light", "dark"):
         theme = "light"
@@ -492,18 +587,56 @@ async def form_test_folder_html(request: Request, folder_id: int):
         "selected_node": None,
         "test_results": results,
         "theme": theme,
+        "timeout_seconds": timeout_seconds,
     }
     return templates.TemplateResponse("index.html", ctx)
 
 
 @app.post("/preferences")
-async def set_preferences(request: Request, dark_mode: Optional[str] = Form(None)):
+async def set_preferences(request: Request, dark_mode: Optional[str] = Form(None), timeout_seconds: Optional[int] = Form(None)):
     # Determine where to redirect back to
     referer = request.headers.get("referer") or "/"
     theme = "dark" if dark_mode else "light"
-    response = RedirectResponse(url=referer, status_code=303)
+    # Validate timeout
+    ts = 10
+    try:
+        if timeout_seconds is not None:
+            ts = int(timeout_seconds)
+    except Exception:
+        ts = 10
+    if ts < 1:
+        ts = 1
+    if ts > 120:
+        ts = 120
+
+    # Compute a safe GET redirect target. Avoid redirecting back to POST-only paths like */test/html.
+    target_url = referer or "/"
+    try:
+        from urllib.parse import urlparse, parse_qs
+        pr = urlparse(referer)
+        path = pr.path or ""
+        if path.endswith("/test/html"):
+            # Patterns: /folders/{id}/test/html or /nodes/{id}/test/html
+            parts = path.strip("/").split("/")
+            if len(parts) >= 4 and parts[2] == "test":
+                if parts[0] == "folders" and parts[1].isdigit():
+                    target_url = f"/?folder_id={parts[1]}"
+                elif parts[0] == "nodes" and parts[1].isdigit():
+                    target_url = f"/?node_id={parts[1]}"
+        else:
+            # Try to preserve selection from query string if present
+            qs = parse_qs(pr.query or "")
+            if qs.get("node_id") and qs["node_id"][0].isdigit():
+                target_url = f"/?node_id={qs['node_id'][0]}"
+            elif qs.get("folder_id") and qs["folder_id"][0].isdigit():
+                target_url = f"/?folder_id={qs['folder_id'][0]}"
+    except Exception:
+        pass
+
+    response = RedirectResponse(url=target_url, status_code=303)
     # Persist for a year
     response.set_cookie(key="theme", value=theme, max_age=60*60*24*365, httponly=False, samesite="lax")
+    response.set_cookie(key="timeout", value=str(ts), max_age=60*60*24*365, httponly=False, samesite="lax")
     return response
 
 

@@ -1,5 +1,7 @@
 # URL Availability Dashboard
 
+Note: This repository is a vibe coding experiment.
+
 A small FastAPI + Bootstrap application to organize and monitor website URLs. You can group URLs in folders (categories), toggle whether a URL is active, and probe availability with HTTP status and response time. The left sidebar shows a collapsible tree of folders/URLs; the right pane shows context forms. Everything is server-rendered with Bootstrap forms.
 
 ## Purpose
@@ -173,6 +175,6 @@ These endpoints power the server-rendered UI and redirect back to the main page.
 
 ## Notes
 - Authentication/authorization: none (intended for local/network use). Place behind a reverse proxy with auth if needed.
-- Timeouts: 10 seconds per request when probing URLs.
+- Timeouts: Configurable via Preferences (default 10 seconds) per request when probing URLs.
 - Redirects: HTTP redirects are followed during probes.
 - Dark mode preference is stored in a cookie (`theme` = `light`/`dark`).
