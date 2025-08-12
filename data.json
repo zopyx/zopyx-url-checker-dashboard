@@ -1,359 +1,55 @@
 {
   "next_folder_id": 11,
-  "next_node_id": 53,
+  "next_node_id": 63,
   "folders": [
     {
       "id": 6,
       "name": "ZOPYX Test",
       "nodes": [
         {
-          "id": 1,
+          "id": 54,
           "folder_id": 6,
-          "name": "onkopediawqeqwe",
+          "name": "heise",
           "url": "https://heise.de/",
           "comment": "",
           "active": true
         },
         {
-          "id": 3,
+          "id": 55,
           "folder_id": 6,
-          "name": "Ajung",
-          "url": "https://andreas-jung.com/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 11,
-          "folder_id": 6,
-          "name": "copy_4_onkopediawqeqwe",
+          "name": "copy_1_heise",
           "url": "https://heise.de/",
           "comment": "",
           "active": true
         },
         {
-          "id": 12,
+          "id": 59,
           "folder_id": 6,
-          "name": "copy_5_onkopediawqeqwe",
+          "name": "copy_4_heise",
           "url": "https://heise.de/",
           "comment": "",
           "active": true
         },
         {
-          "id": 13,
+          "id": 60,
           "folder_id": 6,
-          "name": "copy_6_onkopediawqeqwe",
+          "name": "copy_5_heise",
           "url": "https://heise.de/",
           "comment": "",
           "active": true
         },
         {
-          "id": 14,
+          "id": 61,
           "folder_id": 6,
-          "name": "copy_7_onkopediawqeqwe",
+          "name": "copy_6_heise",
           "url": "https://heise.de/",
           "comment": "",
           "active": true
         },
         {
-          "id": 15,
+          "id": 62,
           "folder_id": 6,
-          "name": "copy_8_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 16,
-          "folder_id": 6,
-          "name": "copy_9_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 17,
-          "folder_id": 6,
-          "name": "copy_10_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 18,
-          "folder_id": 6,
-          "name": "copy_11_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 19,
-          "folder_id": 6,
-          "name": "copy_12_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 20,
-          "folder_id": 6,
-          "name": "copy_13_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 21,
-          "folder_id": 6,
-          "name": "copy_14_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 22,
-          "folder_id": 6,
-          "name": "copy_15_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 23,
-          "folder_id": 6,
-          "name": "copy_16_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 24,
-          "folder_id": 6,
-          "name": "copy_17_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 25,
-          "folder_id": 6,
-          "name": "copy_18_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 26,
-          "folder_id": 6,
-          "name": "copy_19_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 27,
-          "folder_id": 6,
-          "name": "copy_20_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 28,
-          "folder_id": 6,
-          "name": "copy_21_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 29,
-          "folder_id": 6,
-          "name": "copy_22_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 30,
-          "folder_id": 6,
-          "name": "copy_23_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 31,
-          "folder_id": 6,
-          "name": "copy_24_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 32,
-          "folder_id": 6,
-          "name": "copy_25_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 33,
-          "folder_id": 6,
-          "name": "copy_26_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 34,
-          "folder_id": 6,
-          "name": "copy_27_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 35,
-          "folder_id": 6,
-          "name": "copy_28_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 36,
-          "folder_id": 6,
-          "name": "copy_29_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 37,
-          "folder_id": 6,
-          "name": "copy_30_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 38,
-          "folder_id": 6,
-          "name": "copy_31_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 39,
-          "folder_id": 6,
-          "name": "copy_32_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 40,
-          "folder_id": 6,
-          "name": "copy_33_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 41,
-          "folder_id": 6,
-          "name": "copy_34_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 42,
-          "folder_id": 6,
-          "name": "copy_35_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 43,
-          "folder_id": 6,
-          "name": "copy_36_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 44,
-          "folder_id": 6,
-          "name": "copy_37_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 45,
-          "folder_id": 6,
-          "name": "copy_38_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 46,
-          "folder_id": 6,
-          "name": "copy_39_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 47,
-          "folder_id": 6,
-          "name": "copy_40_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 48,
-          "folder_id": 6,
-          "name": "copy_41_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 49,
-          "folder_id": 6,
-          "name": "copy_42_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 50,
-          "folder_id": 6,
-          "name": "copy_43_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 51,
-          "folder_id": 6,
-          "name": "copy_44_onkopediawqeqwe",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 52,
-          "folder_id": 6,
-          "name": "copy_45_onkopediawqeqwe",
+          "name": "copy_7_heise",
           "url": "https://heise.de/",
           "comment": "",
           "active": true

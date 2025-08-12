@@ -38,6 +38,25 @@ uvicorn main:app --reload
 Open your browser at:
 - http://127.0.0.1:8000/
 
+## Testing
+### Unit/Integration tests (pytest)
+```bash
+pip install -r requirements.txt
+pytest -m "not playwright"
+```
+Tests run against a temporary data file by overriding the DATA_FILE environment variable; production data.json is never modified.
+
+### End-to-end (Playwright) tests
+Install browsers once:
+```bash
+python -m playwright install
+```
+Run E2E tests:
+```bash
+pytest -m playwright tests_e2e
+```
+The E2E harness launches uvicorn on a random local port with an isolated DATA_FILE.
+
 ## Data Persistence
 Data is stored in a local JSON file at `data.json` in the project root. It contains folders and nodes, plus counters for generating IDs. No external database is required.
 

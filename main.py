@@ -16,7 +16,9 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, HttpUrl
 
 # Simple file-based persistence
-DATA_FILE = Path(__file__).parent / "data.json"
+# Allow overriding the data file path via environment variable for tests
+_DATA_FILE_ENV = os.environ.get("DATA_FILE")
+DATA_FILE = Path(_DATA_FILE_ENV) if _DATA_FILE_ENV else Path(__file__).parent / "data.json"
 
 
 def _load_data() -> Dict[str, Any]:
@@ -504,6 +506,84 @@ async def form_delete_node(node_id: int):
                 return RedirectResponse(url=f"/?folder_id={parent_folder_id}", status_code=303)
             return RedirectResponse(url="/", status_code=303)
     raise HTTPException(status_code=404, detail="Node not found")
+
+
+@app.post("/nodes/bulk_delete")
+async def form_bulk_delete(
+    request: Request,
+    folder_id: Optional[int] = Form(None),
+    delete_all_in_folder: Optional[str] = Form(None),
+):
+    # Load data and determine scope
+    data = _load_data()
+
+    # If delete_all_in_folder flag is present and folder_id provided, delete all nodes in that folder
+    if delete_all_in_folder and folder_id is not None:
+        folder = _find_folder(data, int(folder_id))
+        if not folder:
+            raise HTTPException(status_code=404, detail="Folder not found")
+        # Wipe nodes list
+        folder["nodes"] = []
+        _save_data(data)
+        return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
+
+    # Read raw form to capture multiple values for the same field name
+    try:
+        form = await request.form()
+    except Exception:
+        form = {}
+
+    raw_ids = []
+    try:
+        # Starlette's FormData supports getlist
+        if hasattr(form, "getlist"):
+            raw_ids = form.getlist("node_ids") or []
+        else:
+            v = form.get("node_ids") if isinstance(form, dict) else None
+            if v is None:
+                raw_ids = []
+            elif isinstance(v, list):
+                raw_ids = v
+            else:
+                raw_ids = [str(v)]
+    except Exception:
+        raw_ids = []
+
+    # Normalize node_ids into a list of ints (handles single/multiple/CSV)
+    norm_ids: List[int] = []
+    for x in raw_ids:
+        s = str(x).strip()
+        if not s:
+            continue
+        parts = [p for p in re.split(r"[,\s]+", s) if p]
+        for p in parts:
+            if p.isdigit():
+                try:
+                    norm_ids.append(int(p))
+                except Exception:
+                    pass
+
+    # Otherwise, delete selected node_ids (may be empty -> just redirect)
+    to_delete = set(norm_ids)
+    if not to_delete:
+        # Nothing selected; just go back to folder view if available
+        if folder_id is not None:
+            return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
+        return RedirectResponse(url="/", status_code=303)
+
+    # Build a mapping folder_id -> filtered nodes after deletion
+    for f in data.get("folders", []):
+        before = len(f.get("nodes", []))
+        if before == 0:
+            continue
+        f["nodes"] = [n for n in f.get("nodes", []) if int(n.get("id")) not in to_delete]
+
+    _save_data(data)
+
+    # Redirect back to the folder if given; otherwise root
+    if folder_id is not None:
+        return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.post("/nodes/{node_id}/duplicate")
