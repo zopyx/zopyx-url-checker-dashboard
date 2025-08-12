@@ -1,32 +1,172 @@
 # URL Availability Dashboard
 
-A minimal FastAPI + Bootstrap app to manage folders and nodes (URLs) and test their availability.
+A small FastAPI + Bootstrap application to organize and monitor website URLs. You can group URLs in folders (categories), toggle whether a URL is active, and probe availability with HTTP status and response time. The left sidebar shows a collapsible tree of folders/URLs; the right pane shows context forms. Everything is server-rendered with Bootstrap forms.
 
-## Requirements
+## Purpose
+This project provides a lightweight, self-hosted dashboard to:
+- Keep URLs organized by category (folders)
+- Quickly test the availability of a single URL or all URLs in a folder
+- Track basic metadata (name, comment, active flag)
+- Use a clean UI without writing any custom JavaScript
+
+Typical use cases include health checking public endpoints, QA/staging links, and simple uptime spot checks.
+
+## Tech Stack
 - Python 3.12
+- FastAPI (server + JSON API)
+- Jinja2 templates (server-rendered UI)
+- Bootstrap 5 (styling) + Bootstrap Icons
+- httpx (HTTP client)
+- Pydantic v2 (validation)
 
-## Setup
+## Installation
+1) Ensure Python 3.12 is installed.
+2) Create and activate a virtual environment, then install dependencies:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Run
+## Running the App
+Start the development server with auto-reload:
 ```bash
 uvicorn main:app --reload
 ```
-Then open http://127.0.0.1:8000/ in your browser.
-
-## Features
-- Bootstrap-based HTML forms (no custom JS required)
-- Folders
-  - Add, rename, delete
-- Nodes (inside folders)
-  - Add, edit, delete
-  - Fields: Name, URL, Comment, Active
-  - Test availability (HTTP GET) with status and latency; results shown on page
-  - Preferences modal with Dark Mode toggle (persists in cookie)
+Open your browser at:
+- http://127.0.0.1:8000/
 
 ## Data Persistence
-Data is stored in a local `data.json` file in the project root using a simple file-based approach.
+Data is stored in a local JSON file at `data.json` in the project root. It contains folders and nodes, plus counters for generating IDs. No external database is required.
+
+## UI Overview (Server-rendered)
+- Left: collapsible tree of folders and their URLs.
+- Right: context forms for adding/renaming/deleting folders, adding/editing/deleting/testing URLs.
+- Test results show below the forms in a compact table.
+- Preferences modal with a dark mode toggle (stored in a cookie).
+
+## JSON API Documentation
+All JSON endpoints are unauthenticated and return JSON responses. Content type: `application/json`.
+
+Schemas (request bodies):
+- FolderIn
+  - name: string (1..200)
+- NodeIn
+  - name: string (1..200)
+  - url: HttpUrl (http/https)
+  - comment: string (optional)
+  - active: boolean (default true)
+
+1) GET /api/tree
+- Description: Retrieve the full folder/node tree.
+- Response:
+```json
+{
+  "folders": [
+    {
+      "id": 1,
+      "name": "Production",
+      "nodes": [
+        {"id": 10, "folder_id": 1, "name": "Homepage", "url": "https://example.com", "comment": "", "active": true}
+      ]
+    }
+  ]
+}
+```
+
+2) POST /api/folders
+- Description: Create a new folder.
+- Body (JSON): FolderIn
+```json
+{"name": "Staging"}
+```
+- Response 200: the created folder object `{id, name, nodes: []}`
+- Errors: 422 on validation failure
+
+3) PUT /api/folders/{folder_id}
+- Description: Rename an existing folder.
+- Body (JSON): FolderIn
+- Response 200: the updated folder object
+- Errors: 404 if not found, 422 on validation failure
+
+4) DELETE /api/folders/{folder_id}
+- Description: Delete a folder and all its nodes.
+- Response 200: `{ "ok": true }`
+- Errors: 404 if not found
+
+5) POST /api/folders/{folder_id}/nodes
+- Description: Create a new node (URL) in a folder.
+- Body (JSON): NodeIn
+```json
+{"name":"Homepage","url":"https://example.com","comment":"","active":true}
+```
+- Response 200: the created node `{id, folder_id, name, url, comment, active}`
+- Errors: 404 if folder not found, 422 on validation failure
+
+6) PUT /api/nodes/{node_id}
+- Description: Update a node.
+- Body (JSON): NodeIn
+- Response 200: the updated node
+- Errors: 404 if not found, 422 on validation failure
+
+7) DELETE /api/nodes/{node_id}
+- Description: Delete a node.
+- Response 200: `{ "ok": true }`
+- Errors: 404 if not found
+
+8) POST /api/nodes/{node_id}/test
+- Description: Probe a single URL (HTTP GET with redirects). 10s timeout.
+- Response examples:
+  - Active and successful:
+```json
+{"id": 10, "url": "https://example.com", "status_code": 200, "ok": true, "elapsed_ms": 123}
+```
+  - Active but failing HTTP:
+```json
+{"id": 10, "url": "https://example.com/404", "status_code": 404, "ok": false, "elapsed_ms": 95}
+```
+  - Network/other error:
+```json
+{"id": 10, "url": "https://bad.host/", "ok": false, "error": "...", "elapsed_ms": 10022}
+```
+  - Inactive node:
+```json
+{"id": 10, "active": false, "tested": false, "reason": "Node inactive"}
+```
+- Errors: 404 if node not found
+
+9) POST /api/folders/{folder_id}/test
+- Description: Probe all nodes in a folder (skips inactive nodes).
+- Response 200:
+```json
+{
+  "folder_id": 1,
+  "results": [
+    {"id": 10, "name": "Homepage", "url": "https://example.com", "active": true, "status_code": 200, "ok": true, "elapsed_ms": 123},
+    {"id": 11, "name": "Docs", "url": "https://example.com/docs", "active": false, "tested": false, "reason": "Node inactive"}
+  ]
+}
+```
+- Errors: 404 if folder not found
+
+10) GET /healthz
+- Description: Simple health check.
+- Response 200: `{ "status": "ok" }`
+
+## Form-based HTML Endpoints (UI)
+These endpoints power the server-rendered UI and redirect back to the main page. They are not intended as a public API but can be useful to know.
+- POST /folders/add — add a folder (form field: name)
+- POST /folders/{folder_id}/rename — rename a folder (form field: name)
+- POST /folders/{folder_id}/delete — delete a folder
+- POST /nodes/add — add a node (form fields: folder_id, name, url, comment, active)
+- POST /nodes/{node_id}/edit — edit a node (form fields: name, url, comment, active)
+- POST /nodes/{node_id}/delete — delete a node
+- POST /nodes/{node_id}/toggle_active — toggle active flag
+- POST /nodes/{node_id}/test/html — test a single node and render results below forms
+- POST /folders/{folder_id}/test/html — test all nodes in the folder and render results below forms
+
+## Notes
+- Authentication/authorization: none (intended for local/network use). Place behind a reverse proxy with auth if needed.
+- Timeouts: 10 seconds per request when probing URLs.
+- Redirects: HTTP redirects are followed during probes.
+- Dark mode preference is stored in a cookie (`theme` = `light`/`dark`).

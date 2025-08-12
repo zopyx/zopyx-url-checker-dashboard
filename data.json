@@ -12,7 +12,7 @@
           "name": "onkopediawqeqwe",
           "url": "https://heise.de/",
           "comment": "",
-          "active": false
+          "active": true
         },
         {
           "id": 2,
@@ -20,7 +20,7 @@
           "name": "Onkopedia Main",
           "url": "https://onkopedia.com/",
           "comment": "hello",
-          "active": false
+          "active": true
         }
       ]
     },
