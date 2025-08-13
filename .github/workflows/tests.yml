@@ -35,4 +35,4 @@ jobs:
 
       - name: Run tests
         run: |
-          python3 -m pytest -q -m "not playwright"
+          uv run python3 -m pytest -q -m "not playwright"
