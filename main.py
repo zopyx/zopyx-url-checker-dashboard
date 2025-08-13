@@ -264,7 +264,7 @@ async def index(request: Request, folder_id: Optional[int] = None, node_id: Opti
         "theme": theme,
         "timeout_seconds": timeout_seconds,
     }
-    return templates.TemplateResponse("index.html", ctx)
+    return templates.TemplateResponse(request, "index.html", ctx)
 
 
 # Helper finders
@@ -1014,7 +1014,7 @@ async def form_test_node_html(request: Request, node_id: int, keep_folder_contex
         "theme": theme,
         "timeout_seconds": timeout_seconds,
     }
-    return templates.TemplateResponse("index.html", ctx)
+    return templates.TemplateResponse(request, "index.html", ctx)
 
 
 @app.post("/folders/{folder_id}/test/html")
@@ -1154,7 +1154,7 @@ async def form_test_folder_html(request: Request, folder_id: int, runs: Optional
         "timeout_seconds": timeout_seconds,
         "runs": runs_val,
     }
-    return templates.TemplateResponse("index.html", ctx)
+    return templates.TemplateResponse(request, "index.html", ctx)
 
 
 @app.post("/preferences")
