@@ -558,3 +558,9 @@ java.lang.ClassNotFoundException: com.intellij.testFramework.fixtures.HeavyIdeaT
 2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
 2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
 2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/pycharm.log, after=/home/ajung/src/dashboard2/pycharm.log
+2025-08-13 14:14:56,211 [3474756]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:15:26,936 [3505481]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/.github/workflows/tests.yml; virtualFile=file:///home/ajung/src/dashboard2/.github/workflows/tests.yml
+2025-08-13 14:15:26,944 [3505489]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:15:26,948 [3505493]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/.github/workflows/tests.yml; relativePath=.github/workflows/tests.yml; projectPath=/home/ajung/src/dashboard2
+2025-08-13 14:15:43,763 [3522308]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=1
+2025-08-13 14:15:43,763 [3522308]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/.github/workflows/tests.yml, after=/home/ajung/src/dashboard2/.github/workflows/tests.yml
