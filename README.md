@@ -232,3 +232,8 @@ These endpoints power the server-rendered UI and redirect back to the main page.
 
 ## Visualization
 - After running tests, the page shows a compact response time chart (inline SVG) beneath the results table, including number of requests (measured/total) and average response time.
+
+
+## Author
+
+Andreas Jung <info@zopyx.com>
