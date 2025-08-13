@@ -227,7 +227,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Endpoint Pulse", version="0.1.0", lifespan=lifespan)
 
 # Static and templates
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).parent / "src" / "endpoint_pulse"
 static_dir = BASE_DIR / "static"
 templates_dir = BASE_DIR / "templates"
 static_dir.mkdir(parents=True, exist_ok=True)
