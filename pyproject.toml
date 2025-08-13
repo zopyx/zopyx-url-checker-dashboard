@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "endpoint-pulse"
-version = "0.1.0"
+version = "0.1.1"
 description = "Endpoint Pulse - a small FastAPI + Jinja app to organize and probe URLs"
 authors = [
   { name = "Andreas Jung <info@zopyx.com>"}

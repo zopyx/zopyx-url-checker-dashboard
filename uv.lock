@@ -287,7 +287,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.111" },
+    { name = "fastapi", specifier = ">=0.111,<1.0" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "jinja2", specifier = ">=3.1" },
     { name = "playwright", marker = "extra == 'dev'", specifier = ">=1.45" },
