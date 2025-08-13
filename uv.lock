@@ -276,7 +276,7 @@ dependencies = [
     { name = "uvicorn", extra = ["standard"] },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "playwright" },
     { name = "pytest" },
@@ -290,17 +290,20 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.111,<1.0" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "jinja2", specifier = ">=3.1" },
-    { name = "playwright", marker = "extra == 'dev'", specifier = ">=1.45" },
     { name = "pydantic", specifier = ">=2.8" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0" },
-    { name = "pytest-playwright", marker = "extra == 'dev'", specifier = ">=0.5" },
     { name = "python-multipart" },
     { name = "requests", specifier = ">=2.32" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30" },
 ]
-provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "playwright", specifier = ">=1.45" },
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest-asyncio", specifier = ">=0.23" },
+    { name = "pytest-cov", specifier = ">=4.0" },
+    { name = "pytest-playwright", specifier = ">=0.5" },
+]
 
 [[package]]
 name = "exceptiongroup"
