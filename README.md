@@ -1,4 +1,4 @@
-# URL Availability Dashboard
+# Endpoint Pulse
 
 Note: This repository is a vibe coding experiment.
 

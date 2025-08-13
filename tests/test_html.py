@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 def test_index(client: TestClient):
     res = client.get("/")
     assert res.status_code == 200
-    assert b"URL Availability Dashboard" in res.content
+    assert b"Endpoint Pulse" in res.content
 
 
 def test_form_folder_and_nodes_and_bulk_delete(client: TestClient):

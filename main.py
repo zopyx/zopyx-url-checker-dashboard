@@ -224,7 +224,7 @@ async def lifespan(app: FastAPI):
     _init_db()
     yield
 
-app = FastAPI(title="URL Availability Dashboard", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Endpoint Pulse", version="0.1.0", lifespan=lifespan)
 
 # Static and templates
 BASE_DIR = Path(__file__).parent
