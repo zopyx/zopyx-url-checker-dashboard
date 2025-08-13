@@ -39,12 +39,17 @@ Open your browser at:
 - http://127.0.0.1:8000/
 
 ## Testing
-### Unit/Integration tests (pytest)
+### Unit/Integration tests with coverage
 ```bash
 pip install -r requirements.txt
-pytest -m "not playwright"
+make tests
 ```
-Tests run against a temporary data file by overriding the DATA_FILE environment variable; production data.json is never modified.
+This runs pytest (excluding Playwright/browser tests) with coverage and prints a term-missing coverage report for main.py. Tests run against a temporary, isolated database by overriding environment variables in fixtures, so your production data is not modified.
+
+Alternatively, without make:
+```bash
+python -m pytest -m "not playwright" --cov=main --cov-report=term-missing
+```
 
 ### End-to-end (Playwright) tests
 Install browsers once:
@@ -53,9 +58,9 @@ python -m playwright install
 ```
 Run E2E tests:
 ```bash
-pytest -m playwright tests_e2e
+python -m pytest -m playwright tests_e2e
 ```
-The E2E harness launches uvicorn on a random local port with an isolated DATA_FILE.
+The E2E harness launches uvicorn on a random local port with an isolated data store.
 
 ## Data Persistence
 Data and configuration are stored in a local SQLite database at `data.sqlite3` in the project root (override with `DB_FILE`). The schema has `folders`, `nodes`, and a small `meta` table for ID counters. On first run, if the database is empty and a legacy `data.json` exists, the app automatically imports it once to ease migration.
