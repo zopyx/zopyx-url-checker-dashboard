@@ -1,4 +1,5 @@
-PYTEST?=python -m pytest
+PYTHON?=python3
+PYTEST=$(PYTHON) -m pytest
 
 .PHONY: tests unit e2e
 

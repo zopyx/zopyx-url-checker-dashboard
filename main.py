@@ -18,21 +18,25 @@ from pydantic import BaseModel, Field, HttpUrl
 
 # Persistence: SQLite backend (with optional one-time migration from JSON)
 # Allow overriding the legacy JSON path via DATA_FILE and the DB path via DB_FILE
-_DATA_FILE_ENV = os.environ.get("DATA_FILE")
-DATA_FILE = Path(_DATA_FILE_ENV) if _DATA_FILE_ENV else Path(__file__).parent / "data.json"
-_DB_FILE_ENV = os.environ.get("DB_FILE")
-if _DB_FILE_ENV:
-    DB_FILE = Path(_DB_FILE_ENV)
-elif _DATA_FILE_ENV:
-    # If legacy DATA_FILE is provided (e.g., by tests), derive DB path next to it
-    DB_FILE = Path(_DATA_FILE_ENV).with_suffix(".sqlite3")
-else:
-    DB_FILE = Path(__file__).parent / "data.sqlite3"
+def _resolve_data_file() -> Path:
+    env = os.environ.get("DATA_FILE")
+    return Path(env) if env else Path(__file__).parent / "data.json"
+
+
+def _resolve_db_file() -> Path:
+    env_db = os.environ.get("DB_FILE")
+    if env_db:
+        return Path(env_db)
+    env_data = os.environ.get("DATA_FILE")
+    if env_data:
+        return Path(env_data).with_suffix(".sqlite3")
+    return Path(__file__).parent / "data.sqlite3"
 
 
 def _get_conn() -> sqlite3.Connection:
-    DB_FILE.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(DB_FILE))
+    db_file = _resolve_db_file()
+    db_file.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(db_file))
     conn.row_factory = sqlite3.Row
     # Enforce foreign keys
     conn.execute("PRAGMA foreign_keys = ON;")
@@ -89,9 +93,10 @@ def _maybe_migrate_from_json() -> None:
     except Exception:
         # If DB can't be checked, just return
         return
-    if DATA_FILE.exists():
+    data_json = _resolve_data_file()
+    if data_json.exists():
         try:
-            with DATA_FILE.open("r", encoding="utf-8") as f:
+            with data_json.open("r", encoding="utf-8") as f:
                 data = json.load(f)
             if isinstance(data, dict):
                 _save_data(data)
@@ -100,7 +105,8 @@ def _maybe_migrate_from_json() -> None:
 
 
 def _load_data() -> Dict[str, Any]:
-    # DB is initialized once at startup via FastAPI lifespan
+    # Ensure schema exists (safety for tests or direct calls)
+    _init_db()
     with _get_conn() as conn:
         cur = conn.cursor()
         # Load folders
@@ -149,7 +155,8 @@ def _load_data() -> Dict[str, Any]:
 
 def _save_data(data: Dict[str, Any]) -> None:
     """Replace database content with provided structure and persist counters."""
-    # DB is initialized once at startup via FastAPI lifespan
+    # Ensure schema exists (safety for tests or direct calls)
+    _init_db()
     folders = data.get("folders", []) or []
     next_folder_id = int(data.get("next_folder_id", 1) or 1)
     next_node_id = int(data.get("next_node_id", 1) or 1)
@@ -785,74 +792,125 @@ async def form_delete_node(node_id: int):
 
 
 @app.post("/nodes/bulk_delete")
-async def form_bulk_delete(
-    request: Request,
-    folder_id: Optional[int] = Form(None),
-    delete_all_in_folder: Optional[str] = Form(None),
-):
-    # Load data and determine scope
+async def form_bulk_delete(request: Request):
+    # Load data
     data = _load_data()
+
+    # Parse raw body (URL-encoded) first to capture repeated keys reliably
+    raw_qs = {}
+    try:
+        raw_body = await request.body()
+        from urllib.parse import parse_qs
+        raw_qs = parse_qs(raw_body.decode("utf-8"), keep_blank_values=True) or {}
+    except Exception:
+        raw_qs = {}
+
+    # Parse form once as a secondary source
+    try:
+        form = await request.form()
+    except Exception:
+        form = {}
+
+    def _getlist(name: str) -> List[str]:
+        try:
+            if hasattr(form, "getlist"):
+                return form.getlist(name) or []
+            v = form.get(name)
+            if v is None:
+                return []
+            if isinstance(v, list):
+                return v
+            return [str(v)]
+        except Exception:
+            return []
+
+    # folder_id and delete_all flag
+    raw_folder = (form.get("folder_id") if isinstance(form, dict) else None) or None
+    try:
+        folder_id = int(raw_folder) if raw_folder is not None and str(raw_folder).isdigit() else None
+    except Exception:
+        folder_id = None
+    delete_all_in_folder = (form.get("delete_all_in_folder") if isinstance(form, dict) else None)
 
     # If delete_all_in_folder flag is present and folder_id provided, delete all nodes in that folder
     if delete_all_in_folder and folder_id is not None:
         folder = _find_folder(data, int(folder_id))
         if not folder:
             raise HTTPException(status_code=404, detail="Folder not found")
-        # Wipe nodes list
         folder["nodes"] = []
         _save_data(data)
         return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
 
-    # Read raw form to capture multiple values for the same field name
-    try:
-        form = await request.form()
-    except Exception:
-        form = {}
-
-    raw_ids = []
-    try:
-        # Starlette's FormData supports getlist
-        if hasattr(form, "getlist"):
-            raw_ids = form.getlist("node_ids") or []
-        else:
-            v = form.get("node_ids") if isinstance(form, dict) else None
-            if v is None:
-                raw_ids = []
-            elif isinstance(v, list):
-                raw_ids = v
-            else:
-                raw_ids = [str(v)]
-    except Exception:
-        raw_ids = []
-
-    # Normalize node_ids into a list of ints (handles single/multiple/CSV)
+    # Collect node_ids from potentially repeated form fields (supports node_ids and node_ids[])
     norm_ids: List[int] = []
-    for x in raw_ids:
+    raw_vals: List[str] = []
+    # Add from raw query-string parsing first
+    try:
+        if raw_qs:
+            raw_vals.extend([str(v) for v in (raw_qs.get("node_ids") or [])])
+            # also keys like node_ids[]
+            for k, v in raw_qs.items():
+                if str(k).startswith("node_ids") and k != "node_ids":
+                    raw_vals.extend([str(x) for x in (v or [])])
+    except Exception:
+        pass
+    # Add from form parsing
+    raw_vals.extend(_getlist("node_ids"))
+    raw_vals.extend(_getlist("node_ids[]"))
+    # Also sweep through all items in case the client encoded as distinct keys
+    try:
+        # Preferred: use multi_items if available to capture repeated keys
+        if hasattr(form, "multi_items"):
+            for k, v in form.multi_items():
+                if str(k).startswith("node_ids"):
+                    raw_vals.append(str(v))
+        else:
+            for k, v in (form.items() if hasattr(form, "items") else []):
+                if str(k).startswith("node_ids"):
+                    raw_vals.append(str(v))
+    except Exception:
+        pass
+    for x in raw_vals:
         s = str(x).strip()
         if not s:
             continue
-        parts = [p for p in re.split(r"[,\s]+", s) if p]
-        for p in parts:
+        for p in re.split(r"[,\s]+", s):
             if p.isdigit():
                 try:
                     norm_ids.append(int(p))
                 except Exception:
                     pass
 
-    # Otherwise, delete selected node_ids (may be empty -> just redirect)
+    # Fallback: parse raw URL-encoded body for repeated node_ids
+    if not norm_ids:
+        try:
+            raw = await request.body()
+            from urllib.parse import parse_qs
+            qs = parse_qs(raw.decode("utf-8"), keep_blank_values=True)
+            for x in qs.get("node_ids", []) or []:
+                s = str(x).strip()
+                if not s:
+                    continue
+                for p in re.split(r"[,\s]+", s):
+                    if p.isdigit():
+                        try:
+                            norm_ids.append(int(p))
+                        except Exception:
+                            pass
+        except Exception:
+            pass
+
     to_delete = set(norm_ids)
     if not to_delete:
-        # Nothing selected; just go back to folder view if available
         if folder_id is not None:
             return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
         return RedirectResponse(url="/", status_code=303)
 
-    # Build a mapping folder_id -> filtered nodes after deletion
+    # Filter nodes across all folders
     for f in data.get("folders", []):
-        before = len(f.get("nodes", []))
-        if before == 0:
-            continue
-        f["nodes"] = [n for n in f.get("nodes", []) if int(n.get("id")) not in to_delete]
+        nodes = f.get("nodes", [])
+        if nodes:
+            f["nodes"] = [n for n in nodes if int(n.get("id")) not in to_delete]
 
     _save_data(data)
 
