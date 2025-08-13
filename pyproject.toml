@@ -7,16 +7,18 @@ name = "endpoint-pulse"
 version = "0.1.0"
 description = "Endpoint Pulse - a small FastAPI + Jinja app to organize and probe URLs"
 authors = [
-  { name = "Endpoint Pulse contributors" }
+  { name = "Andreas Jung <info@zopyx.com>"}
 ]
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-  "fastapi>=0.111",
+  "fastapi>=0.111,<1.0",
   "uvicorn[standard]>=0.30",
   "jinja2>=3.1",
   "httpx>=0.27",
   "pydantic>=2.8",
+  "requests>=2.32",
+  "python-multipart",
 ]
 
 [project.optional-dependencies]

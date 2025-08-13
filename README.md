@@ -30,11 +30,31 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Installing the package from TestPyPI
+When installing from TestPyPI, most third-party dependencies are not available on TestPyPI. Use the main PyPI as an extra index so pip can resolve dependencies like FastAPI and setuptools from PyPI while fetching this package from TestPyPI:
+
+```bash
+pip install --index-url https://test.pypi.org/simple/ \
+            --extra-index-url https://pypi.org/simple \
+            endpoint-pulse
+```
+
+Note: We constrain FastAPI to < 1.0 to avoid a known problematic fastapi==1.0 build on TestPyPI which requires setuptools from TestPyPI (not available). The extra-index-url ensures dependencies are pulled from the official PyPI.
+
 ## Running the App
 Start the development server with auto-reload:
 ```bash
 uvicorn main:app --reload
 ```
+Or use the packaged console script (after installing the package):
+```bash
+endpoint-pulse --host 0.0.0.0 --port 8000 --reload
+```
+Environment variables are also supported when flags are omitted:
+- ENDPOINT_PULSE_HOST (default: 127.0.0.1)
+- ENDPOINT_PULSE_PORT (default: 8000)
+- ENDPOINT_PULSE_RELOAD (set to 1/true/on to enable)
+
 Open your browser at:
 - http://127.0.0.1:8000/
 
