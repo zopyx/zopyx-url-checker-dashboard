@@ -33,7 +33,7 @@
 
     <div class="row g-3">
       <!-- Left: Tree -->
-      <div class="col-12 col-md-4 col-lg-3">
+      <div class="col-12 col-md-3 col-lg-2">
         <div class="card h-100">
           <div class="card-header d-flex justify-content-between align-items-center">
             <span class="fw-semibold">Folders</span>
@@ -50,30 +50,38 @@
                 {% for folder in folders %}
                   <li class="mb-2">
                     <details {% if selected_folder and selected_folder.id == folder.id %}open{% endif %}>
-                      <summary>
-                        <a href="/?folder_id={{ folder.id }}" class="text-decoration-none{% if selected_folder and selected_folder.id == folder.id %} fw-bold{% endif %}">{{ folder.name }}</a>
-                        <span class="badge rounded-pill bg-secondary ms-2" title="Number of URLs in this folder">{{ folder.nodes|length if folder.nodes else 0 }}</span>
-                        <form method="post" action="/folders/{{ folder.id }}/test/html" class="d-inline ms-2">
-                          <button type="submit" class="btn btn-sm btn-outline-primary p-0 px-1" title="Test all" aria-label="Test all">
-                            <i class="bi bi-play-fill"></i>
-                          </button>
-                        </form>
+                      <summary class="d-flex justify-content-between align-items-center">
+                        <span>
+                          <a href="/?folder_id={{ folder.id }}" class="text-decoration-none{% if selected_folder and selected_folder.id == folder.id %} fw-bold{% endif %}">{{ folder.name }}</a>
+                        </span>
+                        <span class="d-inline-flex align-items-center gap-2">
+                          <span class="badge rounded-pill bg-secondary" title="Number of URLs in this folder">{{ folder.nodes|length if folder.nodes else 0 }}</span>
+                          <form method="post" action="/folders/{{ folder.id }}/test/html" class="m-0">
+                            <button type="submit" class="btn btn-sm btn-outline-primary p-0 px-1" title="Test all" aria-label="Test all">
+                              <i class="bi bi-play-fill"></i>
+                            </button>
+                          </form>
+                        </span>
                       </summary>
                       {% if folder.nodes and folder.nodes|length > 0 %}
                         <ul class="list-unstyled ms-5 mt-2">
                           {% for node in folder.nodes %}
-                            <li class="mb-1">
-                              <a href="/?node_id={{ node.id }}" class="text-decoration-none{% if selected_node and selected_node.id == node.id %} fw-bold{% endif %}">{{ node.name }}</a>
-                              <form method="post" action="/nodes/{{ node.id }}/toggle_active" class="d-inline ms-1">
-                                <button type="submit" class="badge {% if node.active %}bg-success{% else %}bg-secondary{% endif %} border-0" title="Click to toggle active/inactive">
-                                  {{ 'active' if node.active else 'inactive' }}
-                                </button>
-                              </form>
-                              <form method="post" action="/nodes/{{ node.id }}/test/html" class="d-inline ms-2">
-                                <button type="submit" class="btn btn-sm btn-outline-primary p-0 px-1" title="Test" aria-label="Test">
-                                  <i class="bi bi-play-fill"></i>
-                                </button>
-                              </form>
+                            <li class="mb-1 d-flex justify-content-between align-items-center">
+                              <span>
+                                <a href="/?node_id={{ node.id }}" class="text-decoration-none{% if selected_node and selected_node.id == node.id %} fw-bold{% endif %}">{{ node.name }}</a>
+                              </span>
+                              <span class="d-inline-flex align-items-center gap-2">
+                                <form method="post" action="/nodes/{{ node.id }}/toggle_active" class="m-0">
+                                  <button type="submit" class="badge {% if node.active %}bg-success{% else %}bg-secondary{% endif %} border-0" title="Click to toggle active/inactive">
+                                    {{ 'active' if node.active else 'inactive' }}
+                                  </button>
+                                </form>
+                                <form method="post" action="/nodes/{{ node.id }}/test/html" class="m-0">
+                                  <button type="submit" class="btn btn-sm btn-outline-primary p-0 px-1" title="Test" aria-label="Test">
+                                    <i class="bi bi-play-fill"></i>
+                                  </button>
+                                </form>
+                              </span>
                             </li>
                           {% endfor %}
                         </ul>
@@ -127,9 +135,6 @@
                 <div class="col-md-4 d-flex gap-2">
                   <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteFolder-{{ selected_folder.id }}">Delete</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#confirmDuplicateFolder-{{ selected_folder.id }}">Duplicate</button>
-                  <form method="post" action="/folders/{{ selected_folder.id }}/test/html" class="m-0">
-                    <button type="submit" class="btn btn-outline-primary">Test all URLs</button>
-                  </form>
 
                   <!-- Delete Folder Modal -->
                   <div class="modal fade" id="confirmDeleteFolder-{{ selected_folder.id }}" tabindex="-1" aria-labelledby="confirmDeleteFolderLabel-{{ selected_folder.id }}" aria-hidden="true">
@@ -203,7 +208,7 @@
               </div>
 
               <!-- Nodes table for this folder -->
-              <div class="mt-3">
+              <div class="border rounded p-3 mt-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                   <div class="fw-semibold">URLs in "{{ selected_folder.name }}"</div>
                   {% if selected_folder.nodes and selected_folder.nodes|length > 0 %}
@@ -242,6 +247,11 @@
                       </div>
                     </div>
                   </div>
+                  <div class="row g-2 align-items-center mb-2">
+                    <div class="col-12 col-md-6 ms-auto">
+                      <input type="search" id="nodes-search" class="form-control form-control-sm" placeholder="Search name, URL, active/inactive..." aria-label="Search URLs" />
+                    </div>
+                  </div>
                   <div class="table-responsive">
                       <table class="table table-sm table-hover align-middle" id="nodes-table">
                         <thead>
@@ -258,7 +268,7 @@
                         </thead>
                         <tbody>
                           {% for node in selected_folder.nodes %}
-                            <tr>
+                            <tr data-name="{{ node.name|lower }}" data-url="{{ node.url|lower }}" data-active="{{ 'active' if node.active else 'inactive' }}">
                               <td>
                                 <input class="form-check-input node-checkbox" type="checkbox" name="node_ids" value="{{ node.id }}" form="bulkDeleteForm">
                               </td>
@@ -337,6 +347,13 @@
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <div class="text-end mt-2">
+                    <form method="post" action="/folders/{{ selected_folder.id }}/test/html" class="d-inline">
+                      <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-play-fill"></i> Test all URLs
+                      </button>
+                    </form>
                   </div>
                 {% else %}
                   <div class="text-muted">No URLs in this folder yet.</div>
@@ -664,6 +681,36 @@
         }));
         // Initialize indeterminate state
         updateDeleteBtn();
+      }
+
+      // Instant search for the URLs table (folder context)
+      const searchInput = document.getElementById('nodes-search');
+      const tbody = document.querySelector('#nodes-table tbody');
+      function tableRows() {
+        return Array.from(tbody ? tbody.querySelectorAll('tr') : []);
+      }
+      function applyFilter() {
+        if (!searchInput || !tbody) return;
+        const q = (searchInput.value || '').toLowerCase().trim();
+        const terms = q.split(/\s+/).filter(Boolean);
+        tableRows().forEach(tr => {
+          if (terms.length === 0) {
+            tr.style.display = '';
+            return;
+          }
+          const name = tr.dataset.name || '';
+          const url = tr.dataset.url || '';
+          const active = tr.dataset.active || '';
+          const ok = terms.every(t => (
+            name.includes(t) ||
+            url.includes(t) ||
+            t === active
+          ));
+          tr.style.display = ok ? '' : 'none';
+        });
+      }
+      if (searchInput && tbody) {
+        searchInput.addEventListener('input', applyFilter);
       }
     });
   </script>

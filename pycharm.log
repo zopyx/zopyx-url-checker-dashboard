@@ -1157,3 +1157,306 @@ ai.grazie.model.cloud.exceptions.HTTPStatusException$ServiceUnavailable: Excepti
 2025-08-13 08:59:07,130 [69748182]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/main.py, after=/home/ajung/src/dashboard2/main.py
 2025-08-13 08:59:22,936 [69763988]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
 2025-08-13 09:01:19,990 [69881042]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:01:57,394 [69918446]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:02:57,082 [69978134]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 09:02:57,116 [69978168]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 09:02:57,144 [69978196]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:02:57,159 [69978211]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/main.py; relativePath=main.py; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:03:09,899 [69990951]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:04:06,322 [70047374]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 09:04:06,347 [70047399]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 09:04:06,382 [70047434]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:04:06,422 [70047474]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/main.py; relativePath=main.py; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:04:15,849 [70056901]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/README.md; virtualFile=file:///home/ajung/src/dashboard2/README.md
+2025-08-13 09:04:15,864 [70056916]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/README.md; virtualFile=file:///home/ajung/src/dashboard2/README.md
+2025-08-13 09:04:15,897 [70056949]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:04:15,924 [70056976]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/README.md; relativePath=README.md; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:04:24,651 [70065703]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 09:04:24,697 [70065749]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 09:04:24,735 [70065787]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:04:24,751 [70065803]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/main.py; relativePath=main.py; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:04:56,572 [70097624]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=4
+2025-08-13 09:04:56,572 [70097624]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/main.py, after=/home/ajung/src/dashboard2/main.py
+2025-08-13 09:04:56,572 [70097624]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/main.py, after=/home/ajung/src/dashboard2/main.py
+2025-08-13 09:04:56,572 [70097624]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/README.md, after=/home/ajung/src/dashboard2/README.md
+2025-08-13 09:04:56,572 [70097624]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/main.py, after=/home/ajung/src/dashboard2/main.py
+2025-08-13 09:05:44,975 [70146027]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:06:32,629 [70193681]   WARN - #com.google.tools.intellij.aiplugin.recitation.RecitationGutterActionFactoryListener$Companion - Project from editor is null or already disposed
+2025-08-13 09:06:36,960 [70198012]   WARN - #c.i.d.d.a.DatabaseArtifactLoaderImpl - Failed to read xerial. xerial
+java.lang.RuntimeException: Failed to read xerial. xerial
+	at com.intellij.util.io.DigestUtil.updateContentHash(DigestUtil.kt:59)
+	at com.intellij.util.io.DigestUtil.updateContentHash$default(DigestUtil.kt:50)
+	at com.intellij.util.io.DigestUtil.updateContentHash(DigestUtil.kt)
+	at com.intellij.database.dataSource.artifacts.DatabaseArtifactLoaderImpl.getUnpackPath(DatabaseArtifactLoaderImpl.java:320)
+	at com.intellij.database.dataSource.artifacts.DatabaseArtifactLoaderImpl.getUnpackedPath(DatabaseArtifactLoaderImpl.java:285)
+	at com.intellij.database.dialects.sqlite.SqliteTempDirParamProvider.populate(SqliteTempDirParamProvider.java:42)
+	at com.intellij.database.run.ConsoleRunConfiguration.setOptionsFromDataSource(ConsoleRunConfiguration.java:70)
+	at com.intellij.database.console.JdbcDriverManagerImpl.chooseRunConfiguration(JdbcDriverManagerImpl.java:230)
+	at com.intellij.database.console.JdbcDriverManagerImpl.getDefaultRunConfiguration(JdbcDriverManagerImpl.java:156)
+	at com.intellij.database.console.JdbcEngine.lambda$new$0(JdbcEngine.java:160)
+	at com.intellij.database.console.JdbcEngine.<init>(JdbcEngine.java:176)
+	at com.intellij.database.console.JdbcEngine.<init>(JdbcEngine.java:159)
+	at com.intellij.database.console.session.MessageBusSession$NaturalKernel.createEngine(MessageBusSession.kt:285)
+	at com.intellij.database.console.session.MessageBusSession$NaturalKernel.init(MessageBusSession.kt:274)
+	at com.intellij.database.console.session.MessageBusSession.<init>(MessageBusSession.kt:114)
+	at com.intellij.database.console.session.DatabaseSessionManager$MultiConnection.instance(DatabaseSessionManager.kt:227)
+	at com.intellij.database.console.session.DatabaseSessionManager$ProjectSessions.getSession$lambda$0(DatabaseSessionManager.kt:164)
+	at com.intellij.database.console.session.DatabaseSessionManager.onEdt$lambda$8(DatabaseSessionManager.kt:148)
+	at com.intellij.util.ui.UIUtil.lambda$invokeAndWaitIfNeeded$3(UIUtil.java:2041)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:167)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:167)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:173)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:167)
+	at com.intellij.util.concurrency.ContextRunnable.run(ContextRunnable.java:27)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:781)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:728)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:722)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:750)
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:595)
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:488)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12$lambda$11$lambda$10$lambda$9(IdeEventQueue.kt:313)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:865)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12$lambda$11$lambda$10(IdeEventQueue.kt:312)
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$3(IdeEventQueue.kt:974)
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:118)
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:974)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12(IdeEventQueue.kt:307)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:347)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:121)
+	at java.desktop/java.awt.WaitDispatchSupport$2.run(WaitDispatchSupport.java:191)
+	at java.desktop/java.awt.WaitDispatchSupport$4.run(WaitDispatchSupport.java:236)
+	at java.desktop/java.awt.WaitDispatchSupport$4.run(WaitDispatchSupport.java:234)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:319)
+	at java.desktop/java.awt.WaitDispatchSupport.enter(WaitDispatchSupport.java:234)
+	at java.desktop/java.awt.Dialog.show(Dialog.java:1079)
+	at com.intellij.openapi.ui.impl.DialogWrapperPeerImpl$MyDialog.show(DialogWrapperPeerImpl.java:898)
+	at com.intellij.openapi.ui.impl.DialogWrapperPeerImpl.lambda$show$6(DialogWrapperPeerImpl.java:479)
+	at com.intellij.openapi.application.WriteIntentReadAction.lambda$run$0(WriteIntentReadAction.java:24)
+	at com.intellij.openapi.application.impl.AppImplKt$rethrowCheckedExceptions$2.invoke(appImpl.kt:106)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.doRunWriteIntentReadAction(NestedLocksThreadingSupport.kt:666)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runPreventiveWriteIntentReadAction(NestedLocksThreadingSupport.kt:640)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runWriteIntentReadAction(NestedLocksThreadingSupport.kt:633)
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWriteIntentReadAction(ApplicationImpl.java:1166)
+	at com.intellij.openapi.application.WriteIntentReadAction.compute(WriteIntentReadAction.java:55)
+	at com.intellij.openapi.application.WriteIntentReadAction.run(WriteIntentReadAction.java:23)
+	at com.intellij.openapi.ui.impl.DialogWrapperPeerImpl.show(DialogWrapperPeerImpl.java:478)
+	at com.intellij.openapi.ui.DialogWrapper.lambda$doShow$16(DialogWrapper.java:1824)
+	at com.intellij.openapi.application.WriteIntentReadAction.lambda$run$0(WriteIntentReadAction.java:24)
+	at com.intellij.openapi.application.impl.AppImplKt$rethrowCheckedExceptions$2.invoke(appImpl.kt:106)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.doRunWriteIntentReadAction(NestedLocksThreadingSupport.kt:666)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runPreventiveWriteIntentReadAction(NestedLocksThreadingSupport.kt:640)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runWriteIntentReadAction(NestedLocksThreadingSupport.kt:633)
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWriteIntentReadAction(ApplicationImpl.java:1166)
+	at com.intellij.openapi.application.WriteIntentReadAction.compute(WriteIntentReadAction.java:55)
+	at com.intellij.openapi.application.WriteIntentReadAction.run(WriteIntentReadAction.java:23)
+	at com.intellij.openapi.ui.DialogWrapper.doShow(DialogWrapper.java:1823)
+	at com.intellij.openapi.ui.DialogWrapper.show(DialogWrapper.java:1771)
+	at com.intellij.database.view.ui.DataSourceManagerDialog.showManagerDialog(DataSourceManagerDialog.java:171)
+	at com.intellij.database.view.ui.DataSourceManagerDialog.showDialog(DataSourceManagerDialog.java:128)
+	at com.intellij.database.view.ui.DataSourceManagerDialog.showDialog(DataSourceManagerDialog.java:111)
+	at com.intellij.database.view.ui.DataSourceManagerDialog.showDialog(DataSourceManagerDialog.java:99)
+	at com.intellij.database.dataSource.DataSourceUiUtil.createDataSourceFromFiles(DataSourceUiUtil.java:263)
+	at com.intellij.database.vfs.DbStorageFileType.openFileInAssociatedApplication(DbStorageFileType.java:68)
+	at com.intellij.openapi.fileEditor.FileNavigatorImpl.navigateInEditorOrNativeApp(FileNavigatorImpl.kt:49)
+	at com.intellij.openapi.fileEditor.FileNavigatorImpl.navigate(FileNavigatorImpl.kt:34)
+	at com.intellij.openapi.fileEditor.OpenFileDescriptor.navigate(OpenFileDescriptor.java:114)
+	at com.intellij.psi.impl.PsiElementBase.navigate(PsiElementBase.java:194)
+	at com.intellij.codeInsight.navigation.NavigationUtil$openFileWithPsiElementAsync$2.invokeSuspend$lambda$1(NavigationUtil.kt:198)
+	at com.intellij.openapi.application.CoroutinesKt.writeIntentReadAction$lambda$0(coroutines.kt:363)
+	at com.intellij.openapi.application.impl.AppImplKt$rethrowCheckedExceptions$2.invoke(appImpl.kt:106)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.doRunWriteIntentReadAction(NestedLocksThreadingSupport.kt:666)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runPreventiveWriteIntentReadAction(NestedLocksThreadingSupport.kt:640)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runWriteIntentReadAction(NestedLocksThreadingSupport.kt:633)
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWriteIntentReadAction(ApplicationImpl.java:1166)
+	at com.intellij.openapi.application.CoroutinesKt.writeIntentReadAction(coroutines.kt:363)
+	at com.intellij.codeInsight.navigation.NavigationUtil$openFileWithPsiElementAsync$2.invokeSuspend(NavigationUtil.kt:189)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at com.intellij.openapi.application.impl.EdtCoroutineDispatcher.wrapWithLocking$lambda$3$lambda$2(EdtCoroutineDispatcher.kt:71)
+	at com.intellij.openapi.application.WriteIntentReadAction.lambda$run$0(WriteIntentReadAction.java:24)
+	at com.intellij.openapi.application.impl.AppImplKt$rethrowCheckedExceptions$2.invoke(appImpl.kt:106)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.doRunWriteIntentReadAction(NestedLocksThreadingSupport.kt:666)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runPreventiveWriteIntentReadAction(NestedLocksThreadingSupport.kt:640)
+	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runWriteIntentReadAction(NestedLocksThreadingSupport.kt:633)
+	at com.intellij.openapi.application.impl.ApplicationImpl.runWriteIntentReadAction(ApplicationImpl.java:1166)
+	at com.intellij.openapi.application.WriteIntentReadAction.compute(WriteIntentReadAction.java:55)
+	at com.intellij.openapi.application.WriteIntentReadAction.run(WriteIntentReadAction.java:23)
+	at com.intellij.openapi.application.impl.EdtCoroutineDispatcher.wrapWithLocking$lambda$3(EdtCoroutineDispatcher.kt:70)
+	at com.intellij.openapi.application.impl.DispatchedRunnable.run(DispatchedRunnable.kt:42)
+	at com.intellij.openapi.application.TransactionGuardImpl.runWithWritingAllowed(TransactionGuardImpl.java:240)
+	at com.intellij.openapi.application.TransactionGuardImpl.access$100(TransactionGuardImpl.java:26)
+	at com.intellij.openapi.application.TransactionGuardImpl$2.run(TransactionGuardImpl.java:222)
+	at com.intellij.openapi.application.impl.FlushQueue.runNextEvent(FlushQueue.java:122)
+	at com.intellij.openapi.application.impl.FlushQueue.flushNow(FlushQueue.java:43)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:781)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:728)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:722)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:750)
+	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:595)
+	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:488)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12$lambda$11$lambda$10$lambda$9(IdeEventQueue.kt:313)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:865)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12$lambda$11$lambda$10(IdeEventQueue.kt:312)
+	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$3(IdeEventQueue.kt:974)
+	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:110)
+	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:974)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$12(IdeEventQueue.kt:307)
+	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:347)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92)
+Caused by: java.nio.file.NoSuchFileException: xerial
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:94)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:108)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:114)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.newByteChannel(UnixFileSystemProvider.java:261)
+	at java.base/java.nio.file.Files.newByteChannel(Files.java:380)
+	at java.base/java.nio.file.Files.newByteChannel(Files.java:432)
+	at java.base/java.nio.file.spi.FileSystemProvider.newInputStream(FileSystemProvider.java:420)
+	at com.intellij.platform.core.nio.fs.DelegatingFileSystemProvider.newInputStream(DelegatingFileSystemProvider.java:80)
+	at java.base/java.nio.file.Files.newInputStream(Files.java:160)
+	at com.intellij.util.io.DigestUtil.updateContentHash(DigestUtil.kt:54)
+	... 131 more
+2025-08-13 09:06:36,973 [70198025]   WARN - #c.i.d.d.a.DatabaseArtifactLoaderImpl - Failed to read xerial. xerial
+java.lang.RuntimeException: Failed to read xerial. xerial
+	at com.intellij.util.io.DigestUtil.updateContentHash(DigestUtil.kt:59)
+	at com.intellij.util.io.DigestUtil.updateContentHash$default(DigestUtil.kt:50)
+	at com.intellij.util.io.DigestUtil.updateContentHash(DigestUtil.kt)
+	at com.intellij.database.dataSource.artifacts.DatabaseArtifactLoaderImpl.getUnpackPath(DatabaseArtifactLoaderImpl.java:320)
+	at com.intellij.database.dataSource.artifacts.DatabaseArtifactLoaderImpl.getUnpackedPath(DatabaseArtifactLoaderImpl.java:285)
+	at com.intellij.database.dialects.sqlite.SqliteTempDirParamProvider.populate(SqliteTempDirParamProvider.java:42)
+	at com.intellij.database.run.ConsoleRunConfiguration.setOptionsFromDataSource(ConsoleRunConfiguration.java:70)
+	at com.intellij.database.console.JdbcDriverManagerImpl.chooseRunConfiguration(JdbcDriverManagerImpl.java:230)
+	at com.intellij.database.console.JdbcDriverManagerImpl.getDefaultRunConfiguration(JdbcDriverManagerImpl.java:156)
+	at com.intellij.database.console.JdbcEngine.lambda$new$0(JdbcEngine.java:160)
+	at com.intellij.database.console.JdbcEngine.createConnection(JdbcEngine.java:211)
+	at com.intellij.database.console.JdbcEngine.getConnection(JdbcEngine.java:321)
+	at com.intellij.database.console.JdbcEngine.getConnection(JdbcEngine.java:309)
+	at com.intellij.database.console.JdbcEngine.lambda$visitRaw$8(JdbcEngine.java:662)
+	at com.intellij.database.console.JdbcEngine.lambda$submitRequest$15(JdbcEngine.java:1169)
+	at com.intellij.database.util.AsyncTask$Frame$sync$$inlined$framed$intellij_database_core_impl$1.run(AsyncTask.kt:878)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.lambda$executeProcessUnderProgress$14(CoreProgressManager.java:681)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computeUnderProgress(CoreProgressManager.java:705)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.executeProcessUnderProgress(CoreProgressManager.java:680)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.executeProcessUnderProgress(ProgressManagerImpl.java:78)
+	at com.intellij.database.util.AsyncTask$Frame.sync(AsyncTask.kt:903)
+	at com.intellij.database.console.AbstractEngine.lambda$submitRequest$7(AbstractEngine.java:245)
+	at com.intellij.database.util.AsyncUtil.lambda$underProgress$6(AsyncUtil.java:141)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.lambda$executeProcessUnderProgress$14(CoreProgressManager.java:681)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computeUnderProgress(CoreProgressManager.java:705)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.executeProcessUnderProgress(CoreProgressManager.java:680)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.executeProcessUnderProgress(ProgressManagerImpl.java:78)
+	at com.intellij.database.util.AsyncUtil.underProgress(AsyncUtil.java:146)
+	at com.intellij.database.util.AsyncUtil.underProgress(AsyncUtil.java:141)
+	at com.intellij.database.console.AbstractEngine.lambda$submitRunnable$6(AbstractEngine.java:204)
+	at com.intellij.database.console.AbstractEngine.lambda$submitRunnable$5(AbstractEngine.java:185)
+	at com.intellij.database.util.AsyncTask$Frame$compute$$inlined$supply$1$1.run(AsyncTask.kt:878)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.lambda$executeProcessUnderProgress$14(CoreProgressManager.java:681)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.registerIndicatorAndRun(CoreProgressManager.java:756)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.computeUnderProgress(CoreProgressManager.java:712)
+	at com.intellij.openapi.progress.impl.CoreProgressManager.executeProcessUnderProgress(CoreProgressManager.java:680)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.executeProcessUnderProgress(ProgressManagerImpl.java:78)
+	at com.intellij.database.util.AsyncTask$Frame$compute$$inlined$supply$1.get(AsyncTask.kt:903)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:167)
+	at com.intellij.util.concurrency.ChildContext$runInChildContext$1.invoke(propagation.kt:167)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:173)
+	at com.intellij.util.concurrency.ChildContext.runInChildContext(propagation.kt:167)
+	at com.intellij.util.concurrency.ContextRunnable.run(ContextRunnable.java:27)
+	at com.intellij.database.util.AsyncTask$Companion.captureContext$lambda$2$lambda$1(AsyncTask.kt:563)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.nio.file.NoSuchFileException: xerial
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:94)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:108)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:114)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.newByteChannel(UnixFileSystemProvider.java:261)
+	at java.base/java.nio.file.Files.newByteChannel(Files.java:380)
+	at java.base/java.nio.file.Files.newByteChannel(Files.java:432)
+	at java.base/java.nio.file.spi.FileSystemProvider.newInputStream(FileSystemProvider.java:420)
+	at com.intellij.platform.core.nio.fs.DelegatingFileSystemProvider.newInputStream(DelegatingFileSystemProvider.java:80)
+	at java.base/java.nio.file.Files.newInputStream(Files.java:160)
+	at com.intellij.util.io.DigestUtil.updateContentHash(DigestUtil.kt:54)
+	... 47 more
+2025-08-13 09:06:37,829 [70198881]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:07:20,750 [70241802]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:08:01,186 [70282238]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:08:30,686 [70311738]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:09:34,480 [70375532]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:09:34,506 [70375558]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:09:34,522 [70375574]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:09:34,525 [70375577]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:09:39,798 [70380850]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:09:39,844 [70380896]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:09:39,874 [70380926]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:09:39,887 [70380939]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:09:50,529 [70391581]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:09:50,570 [70391622]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:09:50,594 [70391646]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:09:50,617 [70391669]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:10:17,126 [70418178]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=3
+2025-08-13 09:10:17,126 [70418178]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:10:17,126 [70418178]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:10:17,126 [70418178]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:13:31,364 [70612416]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:14:38,258 [70679310]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:15:13,138 [70714190]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:15:13,174 [70714226]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:15:13,212 [70714264]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:15:13,238 [70714290]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:15:20,991 [70722043]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:15:23,882 [70724934]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:15:23,914 [70724966]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:15:23,940 [70724992]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:15:23,962 [70725014]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:15:32,967 [70734019]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:15:33,013 [70734065]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:15:33,047 [70734099]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:15:33,069 [70734121]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:15:33,702 [70734754]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:15:53,031 [70754083]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:16:02,283 [70763335]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=3
+2025-08-13 09:16:02,284 [70763336]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:16:02,284 [70763336]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:16:02,284 [70763336]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:16:49,081 [70810133]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:16:59,002 [70820054]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:17:17,196 [70838248]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:17:20,010 [70841062]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:17:20,024 [70841076]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:17:20,052 [70841104]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:17:20,072 [70841124]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:17:35,915 [70856967]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=1
+2025-08-13 09:17:35,915 [70856967]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:17:50,528 [70871580]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:18:12,835 [70893887]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:18:13,329 [70894381]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:18:30,024 [70911076]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:18:38,758 [70919810]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:18:52,978 [70934030]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:18:56,825 [70937877]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:19:03,528 [70944580]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:19:03,553 [70944605]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:19:03,591 [70944643]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:19:03,603 [70944655]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:19:36,021 [70977073]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:19:36,071 [70977123]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:19:36,095 [70977147]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 09:19:36,109 [70977161]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 09:19:49,461 [70990513]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=2
+2025-08-13 09:19:49,461 [70990513]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:19:49,461 [70990513]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 09:20:36,327 [71037379]   WARN - #c.i.u.x.Binding - Collection contains 'null' object
+2025-08-13 09:21:34,728 [71095780]   WARN - #c.i.u.x.Binding - Collection contains 'null' object

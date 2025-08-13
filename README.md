@@ -58,7 +58,7 @@ pytest -m playwright tests_e2e
 The E2E harness launches uvicorn on a random local port with an isolated DATA_FILE.
 
 ## Data Persistence
-Data is stored in a local JSON file at `data.json` in the project root. It contains folders and nodes, plus counters for generating IDs. No external database is required.
+Data and configuration are stored in a local SQLite database at `data.sqlite3` in the project root (override with `DB_FILE`). The schema has `folders`, `nodes`, and a small `meta` table for ID counters. On first run, if the database is empty and a legacy `data.json` exists, the app automatically imports it once to ease migration.
 
 ## UI Overview (Server-rendered)
 - Left: collapsible tree of folders and their URLs.

@@ -9,33 +9,177 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import httpx
+import sqlite3
 from fastapi import FastAPI, HTTPException, Request, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, HttpUrl
 
-# Simple file-based persistence
-# Allow overriding the data file path via environment variable for tests
+# Persistence: SQLite backend (with optional one-time migration from JSON)
+# Allow overriding the legacy JSON path via DATA_FILE and the DB path via DB_FILE
 _DATA_FILE_ENV = os.environ.get("DATA_FILE")
 DATA_FILE = Path(_DATA_FILE_ENV) if _DATA_FILE_ENV else Path(__file__).parent / "data.json"
+_DB_FILE_ENV = os.environ.get("DB_FILE")
+if _DB_FILE_ENV:
+    DB_FILE = Path(_DB_FILE_ENV)
+elif _DATA_FILE_ENV:
+    # If legacy DATA_FILE is provided (e.g., by tests), derive DB path next to it
+    DB_FILE = Path(_DATA_FILE_ENV).with_suffix(".sqlite3")
+else:
+    DB_FILE = Path(__file__).parent / "data.sqlite3"
+
+
+def _get_conn() -> sqlite3.Connection:
+    DB_FILE.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(DB_FILE))
+    conn.row_factory = sqlite3.Row
+    # Enforce foreign keys
+    conn.execute("PRAGMA foreign_keys = ON;")
+    return conn
+
+
+def _init_db() -> None:
+    with _get_conn() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS meta (
+              key TEXT PRIMARY KEY,
+              value TEXT
+            );
+            """
+        )
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS folders (
+              id INTEGER PRIMARY KEY,
+              name TEXT NOT NULL
+            );
+            """
+        )
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS nodes (
+              id INTEGER PRIMARY KEY,
+              folder_id INTEGER NOT NULL,
+              name TEXT NOT NULL,
+              url TEXT NOT NULL,
+              comment TEXT DEFAULT '',
+              active INTEGER NOT NULL DEFAULT 1,
+              FOREIGN KEY(folder_id) REFERENCES folders(id) ON DELETE CASCADE
+            );
+            """
+        )
+        conn.commit()
+    _maybe_migrate_from_json()
+
+
+def _maybe_migrate_from_json() -> None:
+    """If DB is empty and a legacy data.json exists, import it once."""
+    try:
+        with _get_conn() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT COUNT(1) FROM folders;")
+            c1 = cur.fetchone()[0]
+            cur.execute("SELECT COUNT(1) FROM nodes;")
+            c2 = cur.fetchone()[0]
+            if (c1 or c2):
+                return
+    except Exception:
+        # If DB can't be checked, just return
+        return
+    if DATA_FILE.exists():
+        try:
+            with DATA_FILE.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                _save_data(data)
+        except Exception:
+            pass
 
 
 def _load_data() -> Dict[str, Any]:
-    if not DATA_FILE.exists():
-        return {"next_folder_id": 1, "next_node_id": 1, "folders": []}
-    try:
-        with DATA_FILE.open("r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {"next_folder_id": 1, "next_node_id": 1, "folders": []}
+    _init_db()
+    with _get_conn() as conn:
+        cur = conn.cursor()
+        # Load folders
+        cur.execute("SELECT id, name FROM folders ORDER BY id;")
+        folders_rows = cur.fetchall()
+        folders: List[Dict[str, Any]] = []
+        for frow in folders_rows:
+            fid = int(frow["id"])
+            cur.execute(
+                "SELECT id, folder_id, name, url, comment, active FROM nodes WHERE folder_id=? ORDER BY id;",
+                (fid,),
+            )
+            nodes_rows = cur.fetchall()
+            nodes = [
+                {
+                    "id": int(nr["id"]),
+                    "folder_id": int(nr["folder_id"]),
+                    "name": nr["name"],
+                    "url": nr["url"],
+                    "comment": nr["comment"] or "",
+                    "active": bool(nr["active"]),
+                }
+                for nr in nodes_rows
+            ]
+            folders.append({"id": fid, "name": frow["name"], "nodes": nodes})
+        # Determine next ids from meta or max+1
+        def _get_meta(key: str) -> Optional[int]:
+            cur.execute("SELECT value FROM meta WHERE key=?;", (key,))
+            r = cur.fetchone()
+            if not r:
+                return None
+            try:
+                return int(r["value"])
+            except Exception:
+                return None
+        next_folder_id = _get_meta("next_folder_id")
+        next_node_id = _get_meta("next_node_id")
+        if next_folder_id is None:
+            cur.execute("SELECT COALESCE(MAX(id)+1, 1) AS next_id FROM folders;")
+            next_folder_id = int(cur.fetchone()["next_id"])
+        if next_node_id is None:
+            cur.execute("SELECT COALESCE(MAX(id)+1, 1) AS next_id FROM nodes;")
+            next_node_id = int(cur.fetchone()["next_id"])
+        return {"next_folder_id": next_folder_id, "next_node_id": next_node_id, "folders": folders}
 
 
 def _save_data(data: Dict[str, Any]) -> None:
-    tmp = DATA_FILE.with_suffix(".json.tmp")
-    with tmp.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    os.replace(tmp, DATA_FILE)
+    """Replace database content with provided structure and persist counters."""
+    _init_db()
+    folders = data.get("folders", []) or []
+    next_folder_id = int(data.get("next_folder_id", 1) or 1)
+    next_node_id = int(data.get("next_node_id", 1) or 1)
+    with _get_conn() as conn:
+        cur = conn.cursor()
+        # Wipe
+        cur.execute("DELETE FROM nodes;")
+        cur.execute("DELETE FROM folders;")
+        # Insert folders
+        for f in folders:
+            cur.execute("INSERT INTO folders(id, name) VALUES(?, ?);", (int(f.get("id")), f.get("name", "")))
+            for n in (f.get("nodes") or []):
+                cur.execute(
+                    """
+                    INSERT INTO nodes(id, folder_id, name, url, comment, active)
+                    VALUES(?, ?, ?, ?, ?, ?);
+                    """,
+                    (
+                        int(n.get("id")),
+                        int(f.get("id")),
+                        n.get("name", ""),
+                        n.get("url", ""),
+                        n.get("comment", ""),
+                        1 if bool(n.get("active", True)) else 0,
+                    ),
+                )
+        # Upsert meta
+        cur.execute("INSERT INTO meta(key,value) VALUES('next_folder_id',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value;", (str(next_folder_id),))
+        cur.execute("INSERT INTO meta(key,value) VALUES('next_node_id',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value;", (str(next_node_id),))
+        conn.commit()
 
 
 # Pydantic models
