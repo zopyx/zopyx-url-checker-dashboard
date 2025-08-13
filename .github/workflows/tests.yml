@@ -35,8 +35,4 @@ jobs:
 
       - name: Run tests
         run: |
-          if [ -f Makefile ] && grep -q "^tests:" Makefile; then
-            make tests
-          else
-            python -m pytest -q -m "not playwright"
-          fi
+          python3 -m pytest -q -m "not playwright"
