@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           source $HOME/.cargo/env
-          uv sync --frozen-lock
+          uv sync --frozen
 
       - name: Run tests
         run: |
