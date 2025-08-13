@@ -223,10 +223,11 @@
                   {% endif %}
                 </div>
                 {% if selected_folder.nodes and selected_folder.nodes|length > 0 %}
-                  <!-- Standalone form for bulk delete to avoid nested forms -->
+                  <!-- Standalone forms (no nested forms) -->
                   <form method="post" action="/nodes/bulk_delete" id="bulkDeleteForm">
                     <input type="hidden" name="folder_id" value="{{ selected_folder.id }}" />
                   </form>
+                  <form method="post" action="/folders/{{ selected_folder.id }}/test_selected/html" id="testSelectedForm"></form>
                   
                   <!-- Delete Selected Modal -->
                   <div class="modal fade" id="confirmDeleteSelected-{{ selected_folder.id }}" tabindex="-1" aria-labelledby="confirmDeleteSelectedLabel-{{ selected_folder.id }}" aria-hidden="true">
@@ -354,8 +355,14 @@
                         <i class="bi bi-play-fill"></i> Test all URLs
                       </button>
                     </form>
+                    <button type="button" class="btn btn-outline-primary" id="test-selected-btn" title="Test selected URLs">
+                      <i class="bi bi-play-fill"></i> Test selected URLs
+                    </button>
                     <button type="button" class="btn btn-outline-primary runs-open-btn" data-bs-toggle="modal" data-bs-target="#runsModal-{{ selected_folder.id }}" data-runs-input="#runs-input-{{ selected_folder.id }}" title="Run tests multiple times">
                       <i class="bi bi-repeat"></i> Run tests multiple times…
+                    </button>
+                    <button type="button" class="btn btn-outline-primary runs-selected-open-btn" data-bs-toggle="modal" data-bs-target="#runsSelectedModal-{{ selected_folder.id }}" data-runs-input="#runs-selected-input-{{ selected_folder.id }}" title="Run selected multiple times">
+                      <i class="bi bi-repeat"></i> Run selected multiple times…
                     </button>
                   </div>
 
@@ -376,6 +383,29 @@
                           <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary runs-submit-btn">Run Tests</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Runs (Selected Tests...) Modal -->
+                  <div class="modal fade" id="runsSelectedModal-{{ selected_folder.id }}" tabindex="-1" aria-labelledby="runsSelectedModalLabel-{{ selected_folder.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="runsSelectedModalLabel-{{ selected_folder.id }}">Run Selected Tests</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="post" action="/folders/{{ selected_folder.id }}/test_selected/html" id="runsSelectedForm-{{ selected_folder.id }}">
+                          <div class="modal-body">
+                            <label for="runs-selected-input-{{ selected_folder.id }}" class="form-label">Number of runs</label>
+                            <input type="number" class="form-control" id="runs-selected-input-{{ selected_folder.id }}" name="runs" value="5" min="1" max="100" />
+                            <div class="form-text">Runs only the selected active URLs per run and aggregates results. The table shows the last run.</div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary runs-selected-submit-btn">Run Selected</button>
                           </div>
                         </form>
                       </div>
@@ -462,6 +492,9 @@
                           <th role="button" data-sort="min" title="Sort by Min">Min–Max</th>
                           <th role="button" data-sort="errors" title="Sort by #errors">#errors</th>
                           <th role="button" data-sort="error" title="Sort by Error">Error</th>
+                          <th role="button" data-sort="ssl_valid" title="Sort by SSL valid">SSL</th>
+                          <th role="button" data-sort="ssl_days_left" title="Sort by SSL days left">SSL Days</th>
+                          <th role="button" data-sort="ssl_error" title="Sort by SSL issue">SSL Issue</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -477,7 +510,11 @@
                               data-min="{{ r.min_ms if r.min_ms is defined and r.min_ms is not none else '' }}"
                               data-max="{{ r.max_ms if r.max_ms is defined and r.max_ms is not none else '' }}"
                               data-error="{{ (r.error or r.reason or '')|lower }}"
-                              data-errors="{{ r.errors if r.errors is defined and r.errors is not none else '' }}">
+                              data-errors="{{ r.errors if r.errors is defined and r.errors is not none else '' }}"
+                              data-ssl_valid="{{ (1 if r.ssl_valid else (0 if r.ssl_valid is not none else '')) if r.ssl_valid is defined else '' }}"
+                              data-ssl_expires_at="{{ r.ssl_expires_at if r.ssl_expires_at is defined and r.ssl_expires_at is not none else '' }}"
+                              data-ssl_days_left="{{ r.ssl_days_left if r.ssl_days_left is defined and r.ssl_days_left is not none else '' }}"
+                              data-ssl_error="{{ (r.ssl_error or '')|lower }}">
                             <td class="text-nowrap">{{ r.name }}</td>
                             <td class="text-truncate" style="max-width: 360px"><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.url }}</a></td>
                             <td>{% if r.active %}<span class="badge bg-success">active</span>{% else %}<span class="badge bg-secondary">inactive</span>{% endif %}</td>
@@ -505,6 +542,11 @@
                             <td>{% if r.min_ms is defined and r.max_ms is defined %}{{ r.min_ms }}–{{ r.max_ms }} ms{% else %}-{% endif %}</td>
                             <td>{% if r.errors is defined %}{{ r.errors }}{% else %}-{% endif %}</td>
                             <td class="small text-muted">{{ r.error if r.error else r.reason }}</td>
+                            <td>
+                              {% if r.ssl_valid is not defined %}-{% elif r.ssl_valid is none %}<span class="badge bg-secondary">n/a</span>{% elif r.ssl_valid %}<span class="badge bg-success">valid</span>{% else %}<span class="badge bg-danger">invalid</span>{% endif %}
+                            </td>
+                            <td class="small">{% if r.ssl_days_left is defined %}{{ r.ssl_days_left }} days{% else %}-{% endif %}</td>
+                            <td class="small text-muted">{% if r.ssl_error is defined %}{{ r.ssl_error }}{% else %}-{% endif %}</td>
                           </tr>
                         {% endfor %}
                       </tbody>
@@ -754,20 +796,43 @@
       const selectAll = document.getElementById('select-all');
       const bulkForm = document.getElementById('bulkDeleteForm');
       const deleteBtn = document.getElementById('delete-selected-btn');
+      const testSelectedBtn = document.getElementById('test-selected-btn');
+      const testSelectedForm = document.getElementById('testSelectedForm');
       function nodeCheckboxes() {
         return document.querySelectorAll('input.node-checkbox[form="bulkDeleteForm"]');
       }
       function checkedCount() {
         return document.querySelectorAll('input.node-checkbox[form="bulkDeleteForm"]:checked').length;
       }
-      function updateDeleteBtn() {
-        if (deleteBtn) deleteBtn.disabled = checkedCount() === 0;
+      function updateButtonsForSelection() {
+        const disabled = checkedCount() === 0;
+        if (deleteBtn) deleteBtn.disabled = disabled;
+        if (testSelectedBtn) testSelectedBtn.disabled = disabled;
+      }
+      function populateSelectedIntoForm(form) {
+        if (!form) return;
+        // Remove existing node_ids inputs
+        Array.from(form.querySelectorAll('input[name="node_ids"]')).forEach(el => el.remove());
+        // Add current selections
+        document.querySelectorAll('input.node-checkbox[form="bulkDeleteForm"]:checked').forEach(cb => {
+          const inp = document.createElement('input');
+          inp.type = 'hidden';
+          inp.name = 'node_ids';
+          inp.value = cb.value;
+          form.appendChild(inp);
+        });
+      }
+      if (testSelectedBtn && testSelectedForm) {
+        testSelectedBtn.addEventListener('click', function() {
+          populateSelectedIntoForm(testSelectedForm);
+          if (checkedCount() > 0) testSelectedForm.submit();
+        });
       }
       if (bulkForm && selectAll) {
         const checkboxes = nodeCheckboxes();
         selectAll.addEventListener('change', function() {
           nodeCheckboxes().forEach(cb => { cb.checked = selectAll.checked; });
-          updateDeleteBtn();
+          updateButtonsForSelection();
         });
         checkboxes.forEach(cb => cb.addEventListener('change', function() {
           if (!selectAll) return;
@@ -775,10 +840,10 @@
           const checked = checkedCount();
           selectAll.indeterminate = checked > 0 && checked < total;
           selectAll.checked = checked === total;
-          updateDeleteBtn();
+          updateButtonsForSelection();
         }));
         // Initialize indeterminate state
-        updateDeleteBtn();
+        updateButtonsForSelection();
       }
 
       // Instant search for the URLs table (folder context)
@@ -863,6 +928,38 @@
             const msgEl = document.getElementById('progressModalMsg');
             if (msgEl) msgEl.textContent = infoText;
             // Show progress modal (static backdrop)
+            const progressEl = document.getElementById('progressModal');
+            if (progressEl && window.bootstrap) {
+              const pm = new bootstrap.Modal(progressEl, { backdrop: 'static', keyboard: false });
+              pm.show();
+            }
+          } catch (e) {}
+        }, { once: true });
+      });
+
+      // Progress for runs of selected only; also ensure selected ids are included
+      document.querySelectorAll('#runsSelectedModal-{{ selected_folder.id }} form').forEach(form => {
+        form.addEventListener('submit', function() {
+          try {
+            populateSelectedIntoForm(form);
+            const submitBtn = form.querySelector('.runs-selected-submit-btn');
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Running…';
+            }
+            const runsInput = form.querySelector('input[name="runs"]');
+            let runsVal = 1;
+            if (runsInput) {
+              const n = parseInt(runsInput.value, 10);
+              runsVal = (!isNaN(n) && n > 0) ? n : 1;
+            }
+            const selectedIds = Array.from(document.querySelectorAll('input.node-checkbox[form="bulkDeleteForm"]:checked')).map(cb => cb.value);
+            const totalPlanned = runsVal * selectedIds.length;
+            const infoText = (totalPlanned > 0)
+              ? `Planning to send ${totalPlanned} requests (${runsVal} runs × ${selectedIds.length} URLs)…`
+              : `Running ${runsVal} runs…`;
+            const msgEl = document.getElementById('progressModalMsg');
+            if (msgEl) msgEl.textContent = infoText;
             const progressEl = document.getElementById('progressModal');
             if (progressEl && window.bootstrap) {
               const pm = new bootstrap.Modal(progressEl, { backdrop: 'static', keyboard: false });

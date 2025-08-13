@@ -5,6 +5,10 @@ import os
 import time
 import asyncio
 import re
+import ssl
+import socket
+from datetime import datetime, timezone
+from urllib.parse import urlparse
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -284,6 +288,57 @@ def _find_node(data: Dict[str, Any], node_id: int) -> Optional[Dict[str, Any]]:
     return None
 
 
+def _get_ssl_cert_info(url: str, timeout_seconds: int = 10) -> Dict[str, Any]:
+    """Attempt to fetch SSL certificate info for HTTPS URLs.
+    Returns a dict possibly containing:
+      - ssl_valid: bool | None
+      - ssl_error: str (optional)
+      - ssl_expires_at: str (ISO 8601 UTC) (optional)
+      - ssl_days_left: int (optional)
+    For non-HTTPS URLs, returns {}.
+    """
+    try:
+        parsed = urlparse(url)
+        if parsed.scheme.lower() != "https":
+            return {}
+        host = parsed.hostname
+        port = parsed.port or 443
+        if not host:
+            return {"ssl_valid": None, "ssl_error": "no hostname"}
+        ctx = ssl.create_default_context()
+        # Create raw TCP socket with timeout
+        with socket.create_connection((host, port), timeout_seconds) as sock:
+            with ctx.wrap_socket(sock, server_hostname=host) as ssock:
+                cert = ssock.getpeercert()
+        # Parse notAfter
+        not_after = cert.get("notAfter") if isinstance(cert, dict) else None
+        expires_iso = None
+        days_left = None
+        ssl_valid = True
+        if not_after:
+            # OpenSSL ASN.1 time format like 'Jun  1 12:00:00 2025 GMT'
+            try:
+                exp_dt = datetime.strptime(not_after, "%b %d %H:%M:%S %Y %Z").replace(tzinfo=timezone.utc)
+                now = datetime.now(timezone.utc)
+                delta = exp_dt - now
+                days_left = int(delta.total_seconds() // 86400)
+                expires_iso = exp_dt.isoformat()
+                if delta.total_seconds() <= 0:
+                    ssl_valid = False
+            except Exception:
+                expires_iso = str(not_after)
+                ssl_valid = None
+        # If no notAfter, still consider we got a cert but unknown expiry
+        res: Dict[str, Any] = {"ssl_valid": ssl_valid}
+        if expires_iso is not None:
+            res["ssl_expires_at"] = expires_iso
+        if days_left is not None:
+            res["ssl_days_left"] = days_left
+        return res
+    except Exception as e:
+        return {"ssl_valid": False, "ssl_error": str(e)}
+
+
 def _probe_url(url: str, timeout_seconds: int = 10) -> Dict[str, Any]:
     t0 = time.perf_counter()
     try:
@@ -291,18 +346,31 @@ def _probe_url(url: str, timeout_seconds: int = 10) -> Dict[str, Any]:
         with httpx.Client(timeout=timeout, follow_redirects=True) as client:
             resp = client.get(url)
         elapsed_ms = int((time.perf_counter() - t0) * 1000)
-        return {
+        result = {
             "ok": resp.is_success,
             "status_code": resp.status_code,
             "elapsed_ms": elapsed_ms,
         }
+        # SSL info for HTTPS
+        try:
+            ssl_info = _get_ssl_cert_info(url, timeout_seconds=timeout_seconds)
+            result.update(ssl_info)
+        except Exception:
+            pass
+        return result
     except Exception as e:
         elapsed_ms = int((time.perf_counter() - t0) * 1000)
-        return {
+        result = {
             "ok": False,
             "error": str(e),
             "elapsed_ms": elapsed_ms,
         }
+        try:
+            ssl_info = _get_ssl_cert_info(url, timeout_seconds=timeout_seconds)
+            result.update(ssl_info)
+        except Exception:
+            pass
+        return result
 
 
 async def _aprobes(urls: List[str], timeout_seconds: int = 10) -> List[Dict[str, Any]]:
@@ -311,10 +379,22 @@ async def _aprobes(urls: List[str], timeout_seconds: int = 10) -> List[Dict[str,
         try:
             resp = await client.get(url)
             elapsed_ms = int((time.perf_counter() - t0) * 1000)
-            return {"ok": resp.is_success, "status_code": resp.status_code, "elapsed_ms": elapsed_ms}
+            res = {"ok": resp.is_success, "status_code": resp.status_code, "elapsed_ms": elapsed_ms}
+            try:
+                ssl_info = _get_ssl_cert_info(url, timeout_seconds=timeout_seconds)
+                res.update(ssl_info)
+            except Exception:
+                pass
+            return res
         except Exception as e:
             elapsed_ms = int((time.perf_counter() - t0) * 1000)
-            return {"ok": False, "error": str(e), "elapsed_ms": elapsed_ms}
+            res = {"ok": False, "error": str(e), "elapsed_ms": elapsed_ms}
+            try:
+                ssl_info = _get_ssl_cert_info(url, timeout_seconds=timeout_seconds)
+                res.update(ssl_info)
+            except Exception:
+                pass
+            return res
 
     timeout = httpx.Timeout(timeout_seconds)
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
@@ -1316,3 +1396,189 @@ def _next_copy_name(existing_names: List[str], original_name: str) -> str:
         n += 1
         candidate = f"copy_{n}_{base}"
     return candidate
+
+
+@app.post("/folders/{folder_id}/test_selected/html")
+async def form_test_selected_html(request: Request, folder_id: int, runs: Optional[int] = Form(None)):
+    """Test only the selected node_ids within the given folder.
+    Accepts application/x-www-form-urlencoded where node_ids can appear multiple times.
+    Optional form field: runs (int) to repeat the tests and aggregate statistics.
+    """
+    data = _load_data()
+    f = _find_folder(data, folder_id)
+    if not f:
+        raise HTTPException(status_code=404, detail="Folder not found")
+
+    # Parse timeout preference from cookie
+    try:
+        timeout_seconds = int(request.cookies.get("timeout", "10"))
+    except Exception:
+        timeout_seconds = 10
+    if timeout_seconds < 1:
+        timeout_seconds = 1
+    if timeout_seconds > 120:
+        timeout_seconds = 120
+
+    # Parse posted form data for node_ids
+    form = await request.form()
+    vals: List[str] = []
+    for key in ("node_ids", "node_ids[]"):
+        try:
+            if hasattr(form, "getlist"):
+                lst = form.getlist(key)
+                if lst:
+                    vals.extend(lst)
+        except Exception:
+            pass
+        v = form.get(key)
+        if v is not None:
+            if isinstance(v, (list, tuple)):
+                vals.extend(list(v))
+            else:
+                vals.append(str(v))
+
+    norm_ids: List[int] = []
+    for x in vals:
+        try:
+            if isinstance(x, (bytes, bytearray)):
+                s = x.decode("utf-8", errors="ignore")
+            else:
+                s = str(x)
+        except Exception:
+            s = str(x)
+        s = s.strip()
+        if not s:
+            continue
+        for p in re.split(r"[,\s]+", s):
+            if p.isdigit():
+                try:
+                    norm_ids.append(int(p))
+                except Exception:
+                    pass
+
+    selected_ids = [nid for nid in norm_ids if any(int(n.get("id")) == nid for n in (f.get("nodes") or []))]
+    selected_ids = list(dict.fromkeys(selected_ids))  # de-duplicate, preserve order
+    if not selected_ids:
+        # Nothing selected -> redirect back to folder
+        return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
+
+    # Build the selected nodes list in the folder order filtered by selection
+    nodes = [n for n in (f.get("nodes") or []) if int(n.get("id")) in set(selected_ids)]
+
+    # Determine number of runs
+    runs_val = 1
+    try:
+        if runs is not None:
+            runs_val = int(runs)
+    except Exception:
+        runs_val = 1
+    if runs_val < 1:
+        runs_val = 1
+    if runs_val > 100:
+        runs_val = 100
+
+    # Prepare active URLs and indices into the nodes list
+    active_urls: List[str] = []
+    active_indices: List[int] = []
+    for idx, n in enumerate(nodes):
+        if bool(n.get("active", True)):
+            active_urls.append(n.get("url"))
+            active_indices.append(idx)
+
+    # Execute runs
+    last_idx_to_result: Dict[int, Dict[str, Any]] = {}
+    all_measurements: List[Dict[str, Any]] = []
+
+    if active_urls:
+        for _ in range(runs_val):
+            round_results = await _aprobes(active_urls, timeout_seconds=timeout_seconds)
+            last_idx_to_result = {i: res for i, res in zip(active_indices, round_results)}
+            for i, res in zip(active_indices, round_results):
+                node = nodes[i]
+                m = dict(res)
+                m["id"] = node.get("id")
+                m["name"] = node.get("name")
+                m["url"] = node.get("url")
+                m["fetch"] = "parallel"
+                all_measurements.append(m)
+
+    # Aggregate stats across measurements
+    stats_map: Dict[int, Dict[str, int]] = {}
+    if all_measurements:
+        buckets: Dict[int, List[int]] = {}
+        for m in all_measurements:
+            try:
+                nid = int(m.get("id") or 0)
+            except Exception:
+                nid = 0
+            if not nid:
+                continue
+            ms = m.get("elapsed_ms")
+            if isinstance(ms, int):
+                buckets.setdefault(nid, []).append(ms)
+        for nid, lst in buckets.items():
+            if lst:
+                stats_map[nid] = {
+                    "avg_ms": int(round(sum(lst) / len(lst))),
+                    "min_ms": int(min(lst)),
+                    "max_ms": int(max(lst)),
+                }
+
+    # Build table rows from the last run or skipped if inactive
+    results: List[Dict[str, Any]] = []
+    for idx, n in enumerate(nodes):
+        row = {
+            "id": n.get("id"),
+            "name": n.get("name"),
+            "url": n.get("url"),
+            "active": bool(n.get("active", True)),
+        }
+        if not row["active"]:
+            row.update({"tested": False, "reason": "Node inactive", "fetch": "skipped"})
+        else:
+            probe = dict(last_idx_to_result.get(idx, {}))
+            probe["fetch"] = "parallel"
+            row.update(probe)
+            st = stats_map.get(int(row["id"]))
+            if st:
+                row.update(st)
+        results.append(row)
+
+    # Include per-node error counts across runs if any
+    if all_measurements:
+        err_buckets: Dict[int, int] = {}
+        for m in all_measurements:
+            try:
+                nid = int(m.get("id") or 0)
+            except Exception:
+                nid = 0
+            if not nid:
+                continue
+            if not bool(m.get("ok", False)):
+                err_buckets[nid] = err_buckets.get(nid, 0) + 1
+        for row in results:
+            try:
+                nid = int(row.get("id") or 0)
+            except Exception:
+                nid = 0
+            if nid:
+                row["errors"] = err_buckets.get(nid, 0)
+
+    theme = request.cookies.get("theme", "light")
+    if theme not in ("light", "dark"):
+        theme = "light"
+
+    chart_input = all_measurements if all_measurements else results
+    chart = _build_chart_stats(chart_input)
+    ctx = {
+        "request": request,
+        "folders": data.get("folders", []),
+        "selected_folder": f,
+        "selected_node": None,
+        "test_results": results,
+        "chart": chart,
+        "theme": theme,
+        "timeout_seconds": timeout_seconds,
+        "runs": runs_val,
+    }
+    return templates.TemplateResponse(request, "index.html", ctx)

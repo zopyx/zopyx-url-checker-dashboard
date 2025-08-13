@@ -467,3 +467,94 @@ java.lang.ClassNotFoundException: com.intellij.testFramework.fixtures.HeavyIdeaT
 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:1189)
 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:778)
 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:765)
+2025-08-13 13:50:10,667 [1989212]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:51:13,969 [2052514]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 13:51:13,999 [2052544]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 13:51:14,039 [2052584]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:51:14,062 [2052607]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/main.py; relativePath=main.py; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:51:33,701 [2072246]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 13:51:33,740 [2072285]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 13:51:33,767 [2072312]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:51:33,791 [2072336]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/main.py; relativePath=main.py; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:52:02,749 [2101294]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 13:52:02,791 [2101336]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 13:52:02,820 [2101365]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:52:02,838 [2101383]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/main.py; relativePath=main.py; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:52:13,958 [2112503]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:52:13,995 [2112540]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:52:14,024 [2112569]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:52:14,036 [2112581]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:52:32,353 [2130898]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:52:32,393 [2130938]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:52:32,420 [2130965]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:52:32,434 [2130979]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:52:38,657 [2137202]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:52:38,689 [2137234]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:52:38,725 [2137270]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:52:38,734 [2137279]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:54:11,600 [2230145]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=7
+2025-08-13 13:54:11,600 [2230145]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/main.py, after=/home/ajung/src/dashboard2/main.py
+2025-08-13 13:54:11,600 [2230145]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/main.py, after=/home/ajung/src/dashboard2/main.py
+2025-08-13 13:54:11,600 [2230145]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/main.py, after=/home/ajung/src/dashboard2/main.py
+2025-08-13 13:54:11,600 [2230145]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:54:11,600 [2230145]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:54:11,600 [2230145]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:55:57,879 [2336424]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:56:24,156 [2362701]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:56:24,178 [2362723]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:56:24,201 [2362746]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:56:24,225 [2362770]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:56:33,034 [2371579]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:56:33,083 [2371628]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:56:33,107 [2371652]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:56:33,121 [2371666]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:57:54,956 [2453501]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=3
+2025-08-13 13:57:54,956 [2453501]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:57:54,956 [2453501]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 13:57:54,956 [2453501]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/pycharm.log, after=/home/ajung/src/dashboard2/pycharm.log
+2025-08-13 13:59:33,872 [2552417]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:00:00,191 [2578736]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:00:00,214 [2578759]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:00:00,255 [2578800]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:00:00,277 [2578822]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 14:00:08,078 [2586623]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:00:08,125 [2586670]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:00:08,151 [2586696]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:00:08,166 [2586711]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 14:00:52,159 [2630704]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=3
+2025-08-13 14:00:52,159 [2630704]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:00:52,159 [2630704]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:00:52,159 [2630704]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/pycharm.log, after=/home/ajung/src/dashboard2/pycharm.log
+2025-08-13 14:05:32,313 [2910858]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:07:30,852 [3029397]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 14:07:30,911 [3029456]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/main.py; virtualFile=file:///home/ajung/src/dashboard2/main.py
+2025-08-13 14:07:30,947 [3029492]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:07:30,969 [3029514]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/main.py; relativePath=main.py; projectPath=/home/ajung/src/dashboard2
+2025-08-13 14:07:55,540 [3054085]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:07:55,574 [3054119]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:07:55,600 [3054145]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:07:55,616 [3054161]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 14:08:06,700 [3065245]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:08:06,739 [3065284]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:08:06,776 [3065321]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:08:06,788 [3065333]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 14:08:19,587 [3078132]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:08:19,613 [3078158]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:08:19,641 [3078186]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:08:19,652 [3078197]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 14:08:42,107 [3100652]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:08:42,147 [3100692]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:08:42,172 [3100717]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:08:42,190 [3100735]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 14:09:35,664 [3154209]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:09:35,689 [3154234]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/templates/index.html; virtualFile=file:///home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:09:35,720 [3154265]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 14:09:35,734 [3154279]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/templates/index.html; relativePath=templates/index.html; projectPath=/home/ajung/src/dashboard2
+2025-08-13 14:10:30,418 [3208963]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=7
+2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/main.py, after=/home/ajung/src/dashboard2/main.py
+2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/templates/index.html, after=/home/ajung/src/dashboard2/templates/index.html
+2025-08-13 14:10:30,419 [3208964]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/pycharm.log, after=/home/ajung/src/dashboard2/pycharm.log
