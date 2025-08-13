@@ -1,5 +1,7 @@
 # Endpoint Pulse
 
+Project URL: https://github.com/zopyx/zopyx-url-checker-dashboard
+
 Note: This repository is a vibe coding experiment.
 
 A small FastAPI + Bootstrap application to organize and monitor website URLs. You can group URLs in folders (categories), toggle whether a URL is active, and probe availability with HTTP status and response time. The left sidebar shows a collapsible tree of folders/URLs; the right pane shows context forms. Everything is server-rendered with Bootstrap forms.
