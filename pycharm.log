@@ -420,3 +420,50 @@ java.lang.ClassNotFoundException: com.intellij.testFramework.fixtures.HeavyIdeaT
 2025-08-13 13:30:28,267 [ 806812]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/main.py, after=/home/ajung/src/dashboard2/main.py
 2025-08-13 13:30:28,267 [ 806812]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/pytest.ini, after=/home/ajung/src/dashboard2/pytest.ini
 2025-08-13 13:30:28,267 [ 806812]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/pycharm.log, after=/home/ajung/src/dashboard2/pycharm.log
+2025-08-13 13:36:17,019 [1155564]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:42:04,003 [1502548]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/tests/test_coverage_extra.py; virtualFile=file:///home/ajung/src/dashboard2/tests/test_coverage_extra.py
+2025-08-13 13:42:04,035 [1502580]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:42:04,067 [1502612]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/tests/test_coverage_extra.py; relativePath=tests/test_coverage_extra.py; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:45:38,163 [1716708]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/tests/test_coverage_extra.py; virtualFile=file:///home/ajung/src/dashboard2/tests/test_coverage_extra.py
+2025-08-13 13:46:23,152 [1761697]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/tests/test_coverage_extra.py; virtualFile=file:///home/ajung/src/dashboard2/tests/test_coverage_extra.py
+2025-08-13 13:46:23,171 [1761716]   WARN - #c.i.m.l.m.e.c.a.e.EditSearchReplace - Request to change file: absolutePath=/home/ajung/src/dashboard2/tests/test_coverage_extra.py; virtualFile=file:///home/ajung/src/dashboard2/tests/test_coverage_extra.py
+2025-08-13 13:46:23,195 [1761740]   WARN - #c.i.m.l.m.e.c.s.JunieProjectPersistentStateComponent$Companion - Junie project path not set in state; using project directory
+2025-08-13 13:46:23,198 [1761743]   WARN - #c.i.m.l.m.e.c.a.e.EditSessionImpl - Creating FileChange: absolutePath=/home/ajung/src/dashboard2/tests/test_coverage_extra.py; relativePath=tests/test_coverage_extra.py; projectPath=/home/ajung/src/dashboard2
+2025-08-13 13:46:55,125 [1793670]   WARN - #c.i.m.l.m.a.AgentContext - Building patch based on changes: size=5
+2025-08-13 13:46:55,125 [1793670]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/tests/test_coverage_extra.py, after=/home/ajung/src/dashboard2/tests/test_coverage_extra.py
+2025-08-13 13:46:55,125 [1793670]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/pycharm.log, after=/home/ajung/src/dashboard2/pycharm.log
+2025-08-13 13:46:55,125 [1793670]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/tests/test_coverage_extra.py, after=/home/ajung/src/dashboard2/tests/test_coverage_extra.py
+2025-08-13 13:46:55,125 [1793670]   WARN - #c.i.m.l.m.a.AgentContext - Processing change: before=/home/ajung/src/dashboard2/pycharm.log, after=/home/ajung/src/dashboard2/pycharm.log
+2025-08-13 13:48:14,657 [1873202]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.testFramework.fixtures.HeavyIdeaTestFixturePathProviderImpl
+java.lang.ClassNotFoundException: com.intellij.testFramework.fixtures.HeavyIdeaTestFixturePathProviderImpl
+	at com.intellij.util.lang.UrlClassLoader.findClass(UrlClassLoader.java:236)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:593)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526)
+	at com.intellij.serviceContainer.ComponentManagerImplKt.doLoadClass(ComponentManagerImpl.kt:1437)
+	at com.intellij.serviceContainer.ComponentManagerImplKt.doLoadClass$default(ComponentManagerImpl.kt:1429)
+	at com.intellij.serviceContainer.ServiceDescriptorInstanceInitializer.loadInstanceClass(ServiceInstanceInitializer.kt:97)
+	at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder.instanceClass(LazyInstanceHolder.kt:55)
+	at com.intellij.serviceContainer.ComponentManagerImpl.processAllHolders$process(ComponentManagerImpl.kt:1245)
+	at com.intellij.serviceContainer.ComponentManagerImpl.processAllHolders(ComponentManagerImpl.kt:1264)
+	at com.intellij.serviceContainer.ComponentManagerImpl.processAllImplementationClasses(ComponentManagerImpl.kt:1237)
+	at com.intellij.settingsSync.core.SettingsSyncFilteringKt.findComponentClasses(SettingsSyncFiltering.kt:110)
+	at com.intellij.settingsSync.core.SettingsSyncFilteringKt.getRoamableCategory(SettingsSyncFiltering.kt:68)
+	at com.intellij.settingsSync.core.SettingsSyncFilteringKt.isSyncCategoryEnabled(SettingsSyncFiltering.kt:21)
+	at com.intellij.settingsSync.core.SettingsSyncIdeMediatorImpl.write(SettingsSyncIdeMediatorImpl.kt:155)
+	at com.intellij.configurationStore.CompoundStreamProvider.write(CompoundStreamProvider.kt:43)
+	at com.intellij.configurationStore.XmlElementStorage$XmlElementStorageSaveSessionProducer$XmlSaveSession.doSave(XmlElementStorage.kt:275)
+	at com.intellij.configurationStore.XmlElementStorage$XmlElementStorageSaveSessionProducer$XmlSaveSession.save(XmlElementStorage.kt:258)
+	at com.intellij.configurationStore.SaveSessionProducerManager.saveSession(SaveSessionProducerManager.kt:97)
+	at com.intellij.configurationStore.SaveSessionProducerManager.saveSessions(SaveSessionProducerManager.kt:66)
+	at com.intellij.configurationStore.SaveSessionProducerManager.save(SaveSessionProducerManager.kt:41)
+	at com.intellij.configurationStore.ComponentStoreWithExtraComponents.doSave$suspendImpl(ComponentStoreWithExtraComponents.kt:63)
+	at com.intellij.configurationStore.ComponentStoreWithExtraComponents$doSave$1.invokeSuspend(ComponentStoreWithExtraComponents.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.UndispatchedCoroutine.afterResume(CoroutineContext.kt:277)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:101)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:613)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:1189)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:778)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:765)
