@@ -943,7 +943,7 @@ async def form_test_node_html(request: Request, node_id: int, keep_folder_contex
 
 
 @app.post("/folders/{folder_id}/test/html")
-async def form_test_folder_html(request: Request, folder_id: int):
+async def form_test_folder_html(request: Request, folder_id: int, runs: Optional[int] = Form(None)):
     data = _load_data()
     f = _find_folder(data, folder_id)
     if not f:
@@ -967,15 +967,38 @@ async def form_test_folder_html(request: Request, folder_id: int):
             active_urls.append(n.get("url"))
             active_indices.append(idx)
 
-    parallel_results: List[Dict[str, Any]] = []
+    # Determine number of repetitions
+    runs_val = 1
+    try:
+        if runs is not None:
+            runs_val = int(runs)
+    except Exception:
+        runs_val = 1
+    if runs_val < 1:
+        runs_val = 1
+    if runs_val > 100:
+        runs_val = 100
+
+    # Execute runs_val rounds; keep last run for table and aggregate all measurements for the chart
+    last_idx_to_result: Dict[int, Dict[str, Any]] = {}
+    all_measurements: List[Dict[str, Any]] = []
+
     if active_urls:
-        parallel_results = await _aprobes(active_urls, timeout_seconds=timeout_seconds)
+        for _ in range(runs_val):
+            round_results = await _aprobes(active_urls, timeout_seconds=timeout_seconds)
+            # Update last mapping
+            last_idx_to_result = {i: res for i, res in zip(active_indices, round_results)}
+            # Accumulate measurements for chart with simple rows (carry name for tooltip)
+            for i, res in zip(active_indices, round_results):
+                node = nodes[i]
+                m = dict(res)
+                m["name"] = node.get("name")
+                m["url"] = node.get("url")
+                # Mark fetch type for potential UI (not required by chart)
+                m["fetch"] = "parallel"
+                all_measurements.append(m)
 
-    # Map active index to its probe result
-    idx_to_result: Dict[int, Dict[str, Any]] = {}
-    for i, res in zip(active_indices, parallel_results):
-        idx_to_result[i] = res
-
+    # Build table rows from the last run (or skipped if inactive/no runs)
     results: List[Dict[str, Any]] = []
     for idx, n in enumerate(nodes):
         row = {
@@ -987,7 +1010,7 @@ async def form_test_folder_html(request: Request, folder_id: int):
         if not row["active"]:
             row.update({"tested": False, "reason": "Node inactive", "fetch": "skipped"})
         else:
-            probe = dict(idx_to_result.get(idx, {}))
+            probe = dict(last_idx_to_result.get(idx, {}))
             probe["fetch"] = "parallel"
             row.update(probe)
         results.append(row)
@@ -995,7 +1018,10 @@ async def form_test_folder_html(request: Request, folder_id: int):
     theme = request.cookies.get("theme", "light")
     if theme not in ("light", "dark"):
         theme = "light"
-    chart = _build_chart_stats(results)
+
+    # For the chart, prefer all measurements (across runs) if present; otherwise fall back to table rows
+    chart_input = all_measurements if all_measurements else results
+    chart = _build_chart_stats(chart_input)
     ctx = {
         "request": request,
         "folders": data.get("folders", []),
@@ -1005,6 +1031,7 @@ async def form_test_folder_html(request: Request, folder_id: int):
         "chart": chart,
         "theme": theme,
         "timeout_seconds": timeout_seconds,
+        "runs": runs_val,
     }
     return templates.TemplateResponse("index.html", ctx)
 
