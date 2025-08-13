@@ -1,5 +1,4 @@
 import io
-import json
 import urllib.parse
 from typing import List
 
@@ -152,16 +151,7 @@ def test_preferences_redirect_and_clamp(client: TestClient):
     assert res.cookies.get("timeout") == "120"
 
 
-def test_import_invalid_cases(client: TestClient):
-    # Invalid JSON -> 400
-    files = {"file": ("data.json", b"not-json", "application/json")}
-    assert client.post("/import", files=files, allow_redirects=False).status_code == 400
-    # Non-dict root -> 400
-    files = {"file": ("data.json", json.dumps([1,2,3]).encode(), "application/json")}
-    assert client.post("/import", files=files, allow_redirects=False).status_code == 400
-    # folders not list -> 400
-    files = {"file": ("data.json", json.dumps({"folders": {"x": 1}}).encode(), "application/json")}
-    assert client.post("/import", files=files, allow_redirects=False).status_code == 400
+
 
 
 def test_build_chart_stats_edges():

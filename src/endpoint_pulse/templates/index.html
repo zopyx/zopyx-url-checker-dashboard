@@ -13,12 +13,7 @@
     <div class="container-fluid">
       <a class="navbar-brand" href="/">Endpoint Pulse</a>
       <div class="ms-auto d-flex gap-2">
-        <a href="/export" class="btn btn-sm {% if theme == 'dark' %}btn-outline-light{% else %}btn-outline-dark{% endif %}" title="Export hierarchy as JSON">
-          <i class="bi bi-download"></i> Export
-        </a>
-        <button type="button" class="btn btn-sm {% if theme == 'dark' %}btn-outline-light{% else %}btn-outline-dark{% endif %}" data-bs-toggle="modal" data-bs-target="#importModal" title="Import hierarchy from JSON">
-          <i class="bi bi-upload"></i> Import
-        </button>
+        
         <button type="button" class="btn btn-sm {% if theme == 'dark' %}btn-outline-light{% else %}btn-outline-dark{% endif %}" data-bs-toggle="modal" data-bs-target="#preferencesModal">
           <i class="bi bi-gear"></i> Preferences
         </button>
@@ -667,30 +662,7 @@
     </div>
   </div>
 
-  <!-- Import Modal -->
-  <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="importModalLabel">Import Hierarchy</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form method="post" action="/import" enctype="multipart/form-data" id="importForm">
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="import-file" class="form-label">Select JSON file</label>
-              <input class="form-control" type="file" id="import-file" name="file" accept="application/json,.json" required />
-              <div class="form-text">Import will replace the current folders/URLs. Next IDs will be recalculated.</div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Import</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  
 
   <!-- Preferences Modal -->
   <div class="modal fade" id="preferencesModal" tabindex="-1" aria-labelledby="preferencesModalLabel" aria-hidden="true">
@@ -972,6 +944,42 @@
           } catch (e) {}
         }, { once: true });
       });
+
+      // Instant apply for Dark Mode in Preferences
+      (function() {
+        const darkToggle = document.getElementById('pref-dark-mode');
+        if (!darkToggle) return;
+        function setCookie(name, value, days) {
+          try {
+            const d = new Date();
+            d.setTime(d.getTime() + (days*24*60*60*1000));
+            const expires = 'expires=' + d.toUTCString();
+            document.cookie = `${name}=${value}; ${expires}; path=/; samesite=lax`;
+          } catch (e) {}
+        }
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (html) html.setAttribute('data-bs-theme', theme);
+          // Update navbar colors
+          const nav = document.querySelector('.navbar');
+          if (nav) {
+            nav.classList.remove('navbar-dark','bg-dark','navbar-light','bg-light');
+            if (theme === 'dark') nav.classList.add('navbar-dark','bg-dark');
+            else nav.classList.add('navbar-light','bg-light');
+          }
+          // Update outline buttons in the header (Preferences/About)
+          document.querySelectorAll('[data-bs-target="#preferencesModal"], [data-bs-target="#aboutModal"]').forEach(btn => {
+            btn.classList.remove('btn-outline-light','btn-outline-dark');
+            btn.classList.add(theme === 'dark' ? 'btn-outline-light' : 'btn-outline-dark');
+          });
+        }
+        darkToggle.addEventListener('change', function() {
+          const theme = darkToggle.checked ? 'dark' : 'light';
+          applyTheme(theme);
+          // Persist immediately so reload keeps the theme even without pressing Save
+          setCookie('theme', theme, 365);
+        });
+      })();
     });
   </script>
 </body>

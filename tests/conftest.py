@@ -1,6 +1,5 @@
 import os
 import tempfile
-import json
 import contextlib
 import threading
 import time
@@ -12,17 +11,16 @@ from fastapi.testclient import TestClient
 import main as app_module
 
 
+
 @pytest.fixture()
-def temp_data_file(monkeypatch):
+def client(monkeypatch):
+    # Fresh client per test using a temporary database
     with tempfile.TemporaryDirectory() as tmpdir:
-        data_path = Path(tmpdir) / "test_data.json"
-        # start with empty structure
-        data = {"next_folder_id": 1, "next_node_id": 1, "folders": []}
-        data_path.write_text(json.dumps(data), encoding="utf-8")
-        monkeypatch.setenv("DATA_FILE", str(data_path))
-        # Force module to pick up new path if already imported
-        app_module.DATA_FILE = Path(str(data_path))
-        yield data_path
+        db_path = Path(tmpdir) / "test.sqlite3"
+        monkeypatch.setenv("DB_FILE", str(db_path))
+        from main import app  # import after env set
+        yield WrappedTestClient(app)
+
 
 
 class WrappedTestClient(TestClient):
@@ -81,11 +79,7 @@ class WrappedTestClient(TestClient):
         return self._normalized_request(method, url, **kwargs)
 
 
-@pytest.fixture()
-def client(temp_data_file):
-    # Fresh client per test using overridden DATA_FILE
-    from main import app  # import after env set
-    return WrappedTestClient(app)
+
 
 
 class MockResp:

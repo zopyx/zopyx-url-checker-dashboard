@@ -18,49 +18,48 @@ def find_free_port():
 @pytest.fixture(scope="session")
 def e2e_server():
     # Temporary data file for E2E, isolated
-    tmpdir = tempfile.TemporaryDirectory()
-    data_path = Path(tmpdir.name) / "e2e_data.json"
-    data_path.write_text('{"next_folder_id":1,"next_node_id":1,"folders":[]}', encoding="utf-8")
-    port = find_free_port()
-    env = os.environ.copy()
-    env["DATA_FILE"] = str(data_path)
-    cmd = [
-        "python",
-        "-m",
-        "uvicorn",
-        "main:app",
-        "--host",
-        "127.0.0.1",
-        "--port",
-        str(port),
-    ]
-    proc = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "e2e_data.sqlite3"
+        port = find_free_port()
+        env = os.environ.copy()
+        env["DB_FILE"] = str(db_path)
+        cmd = [
+            "python",
+            "-m",
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(port),
+        ]
+        proc = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    # Wait for server
-    base = f"http://127.0.0.1:{port}"
-    for _ in range(100):
+        # Wait for server
+        base = f"http://127.0.0.1:{port}"
+        for _ in range(100):
+            try:
+                r = requests.get(base + "/healthz", timeout=0.5)
+                if r.ok:
+                    break
+            except Exception:
+                pass
+            time.sleep(0.1)
+        else:
+            try:
+                proc.kill()
+            finally:
+                pass
+            raise RuntimeError("Server failed to start for E2E")
+
+        yield base
+
+        proc.terminate()
         try:
-            r = requests.get(base + "/healthz", timeout=0.5)
-            if r.ok:
-                break
-        except Exception:
-            pass
-        time.sleep(0.1)
-    else:
-        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
             proc.kill()
-        finally:
-            tmpdir.cleanup()
-        raise RuntimeError("Server failed to start for E2E")
 
-    yield base
-
-    proc.terminate()
-    try:
-        proc.wait(timeout=3)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-    tmpdir.cleanup()
 
 
 @pytest.mark.playwright

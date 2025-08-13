@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 import time
 import asyncio
@@ -20,11 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, HttpUrl
 
-# Persistence: SQLite backend (with optional one-time migration from JSON)
-# Allow overriding the legacy JSON path via DATA_FILE and the DB path via DB_FILE
-def _resolve_data_file() -> Path:
-    env = os.environ.get("DATA_FILE")
-    return Path(env) if env else Path(__file__).parent / "data.json"
+
 
 
 def _resolve_db_file() -> Path:
@@ -80,32 +75,6 @@ def _init_db() -> None:
             """
         )
         conn.commit()
-    _maybe_migrate_from_json()
-
-
-def _maybe_migrate_from_json() -> None:
-    """If DB is empty and a legacy data.json exists, import it once."""
-    try:
-        with _get_conn() as conn:
-            cur = conn.cursor()
-            cur.execute("SELECT COUNT(1) FROM folders;")
-            c1 = cur.fetchone()[0]
-            cur.execute("SELECT COUNT(1) FROM nodes;")
-            c2 = cur.fetchone()[0]
-            if (c1 or c2):
-                return
-    except Exception:
-        # If DB can't be checked, just return
-        return
-    data_json = _resolve_data_file()
-    if data_json.exists():
-        try:
-            with data_json.open("r", encoding="utf-8") as f:
-                data = json.load(f)
-            if isinstance(data, dict):
-                _save_data(data)
-        except Exception:
-            pass
 
 
 def _load_data() -> Dict[str, Any]:
@@ -1291,85 +1260,7 @@ async def healthz():
     return {"status": "ok"}
 
 
-# Export/Import hierarchy
-@app.get("/export")
-async def export_data():
-    data = _load_data()
-    # Download as attachment
-    filename = f"hierarchy-{int(time.time())}.json"
-    return Response(
-        content=json.dumps(data, indent=2),
-        media_type="application/json",
-        headers={"Content-Disposition": f"attachment; filename=\"{filename}\""},
-    )
 
-
-@app.post("/import")
-async def import_data(file: UploadFile = File(...)):
-    # Read and parse uploaded JSON file and replace the current hierarchy.
-    try:
-        raw = await file.read()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Unable to read uploaded file")
-    try:
-        incoming = json.loads(raw.decode("utf-8"))
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid JSON file")
-
-    # Basic validation and normalization
-    if not isinstance(incoming, dict):
-        raise HTTPException(status_code=400, detail="Root JSON must be an object")
-
-    folders = incoming.get("folders")
-    if folders is None:
-        # allow exporting subset; default to empty
-        folders = []
-    if not isinstance(folders, list):
-        raise HTTPException(status_code=400, detail='"folders" must be a list')
-
-    # Normalize folders and nodes; ensure folder_id is consistent
-    norm_folders: List[Dict[str, Any]] = []
-    max_folder_id = 0
-    max_node_id = 0
-    for f in folders:
-        if not isinstance(f, dict):
-            continue
-        fid = int(f.get("id") or 0)
-        name = f.get("name") or ""
-        nodes = f.get("nodes") or []
-        if not isinstance(nodes, list):
-            nodes = []
-        max_folder_id = max(max_folder_id, fid)
-        norm_nodes: List[Dict[str, Any]] = []
-        for n in nodes:
-            if not isinstance(n, dict):
-                continue
-            nid = int(n.get("id") or 0)
-            # Maintain required fields with safe defaults
-            norm_node = {
-                "id": nid,
-                "folder_id": fid,
-                "name": n.get("name") or "",
-                "url": n.get("url") or "",
-                "comment": n.get("comment") or "",
-                "active": bool(n.get("active", True)),
-            }
-            max_node_id = max(max_node_id, nid)
-            norm_nodes.append(norm_node)
-        norm_folders.append({"id": fid, "name": str(name), "nodes": norm_nodes})
-
-    # Recalculate next ids regardless of what the file had
-    new_data = {
-        "next_folder_id": max_folder_id + 1,
-        "next_node_id": max_node_id + 1,
-        "folders": norm_folders,
-    }
-    _save_data(new_data)
-    # After import, redirect to root; if a folder exists, select the first
-    target = "/"
-    if norm_folders:
-        target = f"/?folder_id={norm_folders[0]['id']}"
-    return RedirectResponse(url=target, status_code=303)
 
 
 def _next_copy_name(existing_names: List[str], original_name: str) -> str:
