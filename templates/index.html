@@ -448,22 +448,36 @@
                   <div class="px-3 pt-2 small text-muted">Showing last run out of {{ runs }} total runs.</div>
                   {% endif %}
                   <div class="table-responsive">
-                    <table class="table table-sm table-hover mb-0">
+                    <table class="table table-sm table-hover mb-0" id="test-results-table">
                       <thead>
                         <tr>
-                          <th>Name</th>
-                          <th>URL</th>
-                          <th>Active</th>
-                          <th>Fetch</th>
-                          <th>Status</th>
-                          <th>OK</th>
-                          <th>Response time</th>
-                          <th>Error</th>
+                          <th role="button" data-sort="name" title="Sort by Name">Name</th>
+                          <th role="button" data-sort="url" title="Sort by URL">URL</th>
+                          <th role="button" data-sort="active" title="Sort by Active">Active</th>
+                          <th role="button" data-sort="fetch" title="Sort by Fetch">Fetch</th>
+                          <th role="button" data-sort="status" title="Sort by Status">Status</th>
+                          <th role="button" data-sort="ok" title="Sort by OK">OK</th>
+                          <th role="button" data-sort="elapsed" title="Sort by Response time">Response time</th>
+                          <th role="button" data-sort="avg" title="Sort by Average">Avg</th>
+                          <th role="button" data-sort="min" title="Sort by Min">Min–Max</th>
+                          <th role="button" data-sort="errors" title="Sort by #errors">#errors</th>
+                          <th role="button" data-sort="error" title="Sort by Error">Error</th>
                         </tr>
                       </thead>
                       <tbody>
                         {% for r in test_results %}
-                          <tr>
+                          <tr data-name="{{ (r.name or '')|lower }}"
+                              data-url="{{ (r.url or '')|lower }}"
+                              data-active="{{ 1 if r.active else 0 }}"
+                              data-fetch="{{ r.fetch or '' }}"
+                              data-status="{{ r.status_code if r.status_code is defined and r.status_code is not none else '' }}"
+                              data-ok="{{ 1 if r.ok else (0 if r.ok is defined else '') }}"
+                              data-elapsed="{{ r.elapsed_ms if r.elapsed_ms is defined and r.elapsed_ms is not none else '' }}"
+                              data-avg="{{ r.avg_ms if r.avg_ms is defined and r.avg_ms is not none else '' }}"
+                              data-min="{{ r.min_ms if r.min_ms is defined and r.min_ms is not none else '' }}"
+                              data-max="{{ r.max_ms if r.max_ms is defined and r.max_ms is not none else '' }}"
+                              data-error="{{ (r.error or r.reason or '')|lower }}"
+                              data-errors="{{ r.errors if r.errors is defined and r.errors is not none else '' }}">
                             <td class="text-nowrap">{{ r.name }}</td>
                             <td class="text-truncate" style="max-width: 360px"><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.url }}</a></td>
                             <td>{% if r.active %}<span class="badge bg-success">active</span>{% else %}<span class="badge bg-secondary">inactive</span>{% endif %}</td>
@@ -487,6 +501,9 @@
                             <td>{% if r.status_code %}<span class="badge {% if r.ok %}bg-success{% else %}bg-danger{% endif %}">{{ r.status_code }}</span>{% else %}-{% endif %}</td>
                             <td>{% if r.ok %}<span class="badge bg-success">OK</span>{% elif r.tested == false %}<span class="badge bg-secondary">n/a</span>{% else %}<span class="badge bg-danger">FAIL</span>{% endif %}</td>
                             <td>{% if r.elapsed_ms is defined %}{{ r.elapsed_ms }} ms{% else %}-{% endif %}</td>
+                            <td>{% if r.avg_ms is defined %}{{ r.avg_ms }} ms{% else %}-{% endif %}</td>
+                            <td>{% if r.min_ms is defined and r.max_ms is defined %}{{ r.min_ms }}–{{ r.max_ms }} ms{% else %}-{% endif %}</td>
+                            <td>{% if r.errors is defined %}{{ r.errors }}{% else %}-{% endif %}</td>
                             <td class="small text-muted">{{ r.error if r.error else r.reason }}</td>
                           </tr>
                         {% endfor %}
@@ -507,8 +524,8 @@
                   </span>
                 </div>
                 <div class="card-body">
-                  <div class="w-100">
-                    <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" width="100%" height="{{ chart.height }}">
+                  <div class="w-100 overflow-auto">
+                    <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" width="{{ chart.width }}" height="{{ chart.height }}">
                       <!-- Grid lines and Y-axis labels -->
                       {% if chart.y_ticks %}
                         {% for t in chart.y_ticks %}
@@ -519,7 +536,7 @@
 
                       <!-- Average line -->
                       {% if chart.avg_y is not none %}
-                        <line x1="{{ chart.margin_left }}" y1="{{ chart.avg_y }}" x2="{{ chart.width - chart.margin_right }}" y2="{{ chart.avg_y }}" stroke="var(--bs-danger)" stroke-width="1" stroke-dasharray="4 3" />
+                        <line x1="0" y1="{{ chart.avg_y }}" x2="{{ chart.width }}" y2="{{ chart.avg_y }}" stroke="var(--bs-danger)" stroke-width="1" stroke-dasharray="4 3" />
                         <text x="{{ chart.width - chart.margin_right }}" y="{{ chart.avg_y - 4 }}" fill="var(--bs-danger)" font-size="10" text-anchor="end">avg {{ chart.avg_ms }} ms</text>
                       {% endif %}
 
@@ -528,8 +545,10 @@
                         <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.width }}" height="{{ b.height }}" fill="{{ b.color }}">
                           <title>{{ b.label }} — {% if b.ms %}{{ b.ms }} ms{% else %}n/a{% endif %}</title>
                         </rect>
-                        <!-- X label -->
+                        <!-- X label (thinned by step) -->
+                        {% if b.show_xlabel %}
                         <text x="{{ b.x + (b.width/2) }}" y="{{ chart.baseline_y + 12 }}" fill="var(--bs-secondary-color)" font-size="9" text-anchor="middle">{{ b.xlabel }}</text>
+                        {% endif %}
                       {% endfor %}
 
                       <!-- Axes -->
@@ -695,6 +714,43 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Sorting for Test Results table
+      (function() {
+        const table = document.getElementById('test-results-table');
+        if (!table) return;
+        const tbody = table.querySelector('tbody');
+        const ths = table.querySelectorAll('thead th[data-sort]');
+        let current = { key: null, dir: 1 };
+        function cmp(a, b, key) {
+          const av = a.dataset[key];
+          const bv = b.dataset[key];
+          // numeric if both values look like numbers
+          const an = av === '' ? NaN : Number(av);
+          const bn = bv === '' ? NaN : Number(bv);
+          const bothNumeric = !isNaN(an) && !isNaN(bn);
+          if (bothNumeric) return an - bn;
+          return String(av).localeCompare(String(bv));
+        }
+        function sortBy(key) {
+          const rows = Array.from(tbody.querySelectorAll('tr'));
+          const dir = (current.key === key) ? -current.dir : 1;
+          rows.sort((r1, r2) => dir * cmp(r1, r2, key));
+          // Re-append in new order
+          rows.forEach(r => tbody.appendChild(r));
+          current = { key, dir };
+          // Update header indicators (basic)
+          ths.forEach(th => {
+            th.classList.remove('text-primary');
+            th.textContent = th.textContent.replace(/\s*[▲▼]$/,'');
+          });
+          const th = Array.from(ths).find(t => t.dataset.sort === key);
+          if (th) {
+            th.classList.add('text-primary');
+            th.textContent = th.textContent + (dir > 0 ? ' ▲' : ' ▼');
+          }
+        }
+        ths.forEach(th => th.addEventListener('click', () => sortBy(th.dataset.sort)));
+      })();
       const selectAll = document.getElementById('select-all');
       const bulkForm = document.getElementById('bulkDeleteForm');
       const deleteBtn = document.getElementById('delete-selected-btn');

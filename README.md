@@ -60,6 +60,10 @@ The E2E harness launches uvicorn on a random local port with an isolated DATA_FI
 ## Data Persistence
 Data and configuration are stored in a local SQLite database at `data.sqlite3` in the project root (override with `DB_FILE`). The schema has `folders`, `nodes`, and a small `meta` table for ID counters. On first run, if the database is empty and a legacy `data.json` exists, the app automatically imports it once to ease migration.
 
+## Architecture Notes
+- Startup initialization: The database schema is initialized once at app startup via FastAPI's lifespan. This avoids redundant schema checks per request and improves efficiency.
+- Modularity: The current codebase is intentionally compact. Future work may extract database access and request handlers into separate modules (e.g., db.py, services.py, api_routes.py) and adopt an ORM like SQLAlchemy for more maintainable data access.
+
 ## UI Overview (Server-rendered)
 - Left: collapsible tree of folders and their URLs.
 - Right: context forms for adding/renaming/deleting folders, adding/editing/deleting/testing URLs.

@@ -100,7 +100,7 @@ def _maybe_migrate_from_json() -> None:
 
 
 def _load_data() -> Dict[str, Any]:
-    _init_db()
+    # DB is initialized once at startup via FastAPI lifespan
     with _get_conn() as conn:
         cur = conn.cursor()
         # Load folders
@@ -149,7 +149,7 @@ def _load_data() -> Dict[str, Any]:
 
 def _save_data(data: Dict[str, Any]) -> None:
     """Replace database content with provided structure and persist counters."""
-    _init_db()
+    # DB is initialized once at startup via FastAPI lifespan
     folders = data.get("folders", []) or []
     next_folder_id = int(data.get("next_folder_id", 1) or 1)
     next_node_id = int(data.get("next_node_id", 1) or 1)
@@ -204,8 +204,16 @@ class Folder(FolderIn):
     nodes: List[Node] = []
 
 
-# Initialize app
-app = FastAPI(title="URL Availability Dashboard", version="0.1.0")
+# Initialize app with lifespan to init DB once
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize database schema once at startup (reduces per-request overhead)
+    _init_db()
+    yield
+
+app = FastAPI(title="URL Availability Dashboard", version="0.1.0", lifespan=lifespan)
 
 # Static and templates
 BASE_DIR = Path(__file__).parent
@@ -312,15 +320,13 @@ def _build_chart_stats(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     - Adds margins, proper axes, "nice" y-ticks, and an average line.
     Returns a dict used by the template to render the SVG.
     """
-    # Overall SVG size and margins
-    width = 720
+    # Base SVG size and margins (width may grow with many bars)
+    base_width = 720
     height = 220
     margin_left = 48
     margin_right = 12
     margin_top = 12
     margin_bottom = 28
-    plot_w = max(1, width - margin_left - margin_right)
-    plot_h = max(1, height - margin_top - margin_bottom)
 
     # Data prep
     measured = [r for r in results if isinstance(r.get("elapsed_ms"), int)]
@@ -359,15 +365,37 @@ def _build_chart_stats(results: List[Dict[str, Any]]) -> Dict[str, Any]:
         step = 1
     nice_max = ((dmax + step - 1) // step) * step
 
+    # Bars geometry (determine dynamic width first)
+    n = count_total if count_total > 0 else 1
+    gap = 8
+    min_bar_w = 3
+    # Required total plot width to keep at least min_bar_w per bar
+    required_plot_w = (n + 1) * gap + n * min_bar_w
+    # Compute full SVG width including margins
+    width = max(base_width, margin_left + required_plot_w + margin_right)
+    plot_w = max(1, width - margin_left - margin_right)
+    plot_h = max(1, height - margin_top - margin_bottom)
+
     # Scale helper: ms -> y coordinate within plot
     def y_for(ms: int) -> int:
         frac = min(1.0, max(0.0, ms / nice_max))
         return margin_top + int(round((1.0 - frac) * plot_h))
 
-    # Bars geometry
-    n = count_total if count_total > 0 else 1
-    gap = 8
-    bar_width = max(3, int((plot_w - (n + 1) * gap) / n))
+    # Final bar width using the (potentially) expanded plot_w
+    bar_width = max(min_bar_w, int((plot_w - (n + 1) * gap) / n))
+
+    # Decide X-axis label step from {1, 10, 25, 50, 100} depending on n
+    if n <= 20:
+        x_step = 1
+    elif n <= 100:
+        x_step = 10
+    elif n <= 250:
+        x_step = 25
+    elif n <= 500:
+        x_step = 50
+    else:
+        x_step = 100
+
     series: List[Dict[str, Any]] = []
     for idx, r in enumerate(results):
         ms = r.get("elapsed_ms") if isinstance(r.get("elapsed_ms"), int) else 0
@@ -378,16 +406,19 @@ def _build_chart_stats(results: List[Dict[str, Any]]) -> Dict[str, Any]:
             color = "#6c757d"
         else:
             color = "#198754" if r.get("ok") else ("#dc3545" if (r.get("error") is not None or r.get("status_code") is not None) else "#6c757d")
-        label = str(r.get("name") or idx + 1)
+        index1 = idx + 1
+        # Show label for first, last, and every x_step index
+        show_xlabel = (index1 == 1) or (index1 == n) or (index1 % x_step == 0)
         series.append({
             "x": x,
             "y": y,
             "width": bar_width,
             "height": h,
             "color": color,
-            "label": label,
+            "label": str(r.get("name") or index1),
             "ms": ms,
-            "xlabel": str(idx + 1),
+            "xlabel": str(index1),
+            "show_xlabel": show_xlabel,
         })
 
     # Y-axis ticks
@@ -418,6 +449,7 @@ def _build_chart_stats(results: List[Dict[str, Any]]) -> Dict[str, Any]:
         "plot_h": plot_h,
         "baseline_y": baseline_y,
         "avg_y": avg_y,
+        "x_step": x_step,
     }
 
 
@@ -921,6 +953,16 @@ async def form_test_node_html(request: Request, node_id: int, keep_folder_contex
         probe = _probe_url(row["url"], timeout_seconds=timeout_seconds)  # includes ok, status_code, elapsed_ms or error
         probe["fetch"] = "single"
         row.update(probe)
+        # Provide single-run stats
+        if isinstance(row.get("elapsed_ms"), int):
+            row["avg_ms"] = row["elapsed_ms"]
+            row["min_ms"] = row["elapsed_ms"]
+            row["max_ms"] = row["elapsed_ms"]
+        # For single run, errors is 0 if ok, else 1
+        if row.get("ok") is True:
+            row["errors"] = 0
+        elif (row.get("ok") is False) or (row.get("status_code") is not None) or (row.get("error") is not None):
+            row["errors"] = 1
 
     selected_folder = _find_folder(data, n.get("folder_id")) if n else None
     theme = request.cookies.get("theme", "light")
@@ -992,11 +1034,31 @@ async def form_test_folder_html(request: Request, folder_id: int, runs: Optional
             for i, res in zip(active_indices, round_results):
                 node = nodes[i]
                 m = dict(res)
+                m["id"] = node.get("id")
                 m["name"] = node.get("name")
                 m["url"] = node.get("url")
                 # Mark fetch type for potential UI (not required by chart)
                 m["fetch"] = "parallel"
                 all_measurements.append(m)
+
+    # Build per-node stats from all_measurements
+    stats_map: Dict[int, Dict[str, int]] = {}
+    if all_measurements:
+        buckets: Dict[int, List[int]] = {}
+        for m in all_measurements:
+            nid = int(m.get("id") or 0)
+            if not nid:
+                continue
+            ms = m.get("elapsed_ms")
+            if isinstance(ms, int):
+                buckets.setdefault(nid, []).append(ms)
+        for nid, lst in buckets.items():
+            if lst:
+                stats_map[nid] = {
+                    "avg_ms": int(round(sum(lst) / len(lst))),
+                    "min_ms": int(min(lst)),
+                    "max_ms": int(max(lst)),
+                }
 
     # Build table rows from the last run (or skipped if inactive/no runs)
     results: List[Dict[str, Any]] = []
@@ -1013,7 +1075,33 @@ async def form_test_folder_html(request: Request, folder_id: int, runs: Optional
             probe = dict(last_idx_to_result.get(idx, {}))
             probe["fetch"] = "parallel"
             row.update(probe)
+            # Attach stats if available
+            st = stats_map.get(int(row["id"]))
+            if st:
+                row.update(st)
         results.append(row)
+
+    # Include errors count per node across runs
+    if all_measurements:
+        err_buckets: Dict[int, int] = {}
+        for m in all_measurements:
+            try:
+                nid = int(m.get("id") or 0)
+            except Exception:
+                nid = 0
+            if not nid:
+                continue
+            is_error = not bool(m.get("ok", False))
+            if is_error:
+                err_buckets[nid] = err_buckets.get(nid, 0) + 1
+        # attach errors to rows
+        for row in results:
+            try:
+                nid = int(row.get("id") or 0)
+            except Exception:
+                nid = 0
+            if nid:
+                row["errors"] = err_buckets.get(nid, 0)
 
     theme = request.cookies.get("theme", "light")
     if theme not in ("light", "dark"):
