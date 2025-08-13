@@ -1,0 +1,13 @@
+/******** Theme-aware overrides using Bootstrap 5.3 CSS variables ********/
+body { background-color: var(--bs-body-bg); color: var(--bs-body-color); }
+#sidebar { background-color: var(--bs-body-bg); }
+.folder-header button { width: 2.2rem; padding: 0.1rem 0; }
+.node-item { border-bottom: 1px dashed var(--bs-border-color); }
+
+/* Larger checkbox for Active field */
+.form-check-input.form-check-lg { width: 1.6rem; height: 1.6rem; }
+
+/* Folder toggle icons in the left tree */
+details summary .when-open { display: none; }
+details[open] summary .when-open { display: inline; }
+details[open] summary .when-closed { display: none; }
