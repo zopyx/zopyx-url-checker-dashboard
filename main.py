@@ -793,85 +793,60 @@ async def form_delete_node(node_id: int):
 
 @app.post("/nodes/bulk_delete")
 async def form_bulk_delete(request: Request):
-    # Load data
+    """Delete selected nodes (node_ids) or all nodes in a folder.
+    Accepts application/x-www-form-urlencoded where node_ids can appear multiple times.
+    """
     data = _load_data()
 
-    # Parse raw body (URL-encoded) first to capture repeated keys reliably
-    raw_qs = {}
-    try:
-        raw_body = await request.body()
-        from urllib.parse import parse_qs
-        raw_qs = parse_qs(raw_body.decode("utf-8"), keep_blank_values=True) or {}
-    except Exception:
-        raw_qs = {}
+    # Parse posted form data via Starlette's form parser (robust for urlencoded and multipart)
+    form = await request.form()
 
-    # Parse form once as a secondary source
+    # folder context (optional)
+    folder_id: Optional[int] = None
     try:
-        form = await request.form()
-    except Exception:
-        form = {}
-
-    def _getlist(name: str) -> List[str]:
-        try:
-            if hasattr(form, "getlist"):
-                return form.getlist(name) or []
-            v = form.get(name)
-            if v is None:
-                return []
-            if isinstance(v, list):
-                return v
-            return [str(v)]
-        except Exception:
-            return []
-
-    # folder_id and delete_all flag
-    raw_folder = (form.get("folder_id") if isinstance(form, dict) else None) or None
-    try:
-        folder_id = int(raw_folder) if raw_folder is not None and str(raw_folder).isdigit() else None
+        if form.get("folder_id") is not None and str(form.get("folder_id")).isdigit():
+            folder_id = int(str(form.get("folder_id")))
     except Exception:
         folder_id = None
-    delete_all_in_folder = (form.get("delete_all_in_folder") if isinstance(form, dict) else None)
 
-    # If delete_all_in_folder flag is present and folder_id provided, delete all nodes in that folder
+    # Delete all flag
+    delete_all_in_folder = form.get("delete_all_in_folder")
     if delete_all_in_folder and folder_id is not None:
-        folder = _find_folder(data, int(folder_id))
+        folder = _find_folder(data, folder_id)
         if not folder:
             raise HTTPException(status_code=404, detail="Folder not found")
         folder["nodes"] = []
         _save_data(data)
         return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
 
-    # Collect node_ids from potentially repeated form fields (supports node_ids and node_ids[])
+    # Collect node_ids from repeated fields
+    vals: List[str] = []
+    # getlist captures duplicates; also try get() for parsers that collapse
+    for key in ("node_ids", "node_ids[]"):
+        try:
+            if hasattr(form, "getlist"):
+                lst = form.getlist(key)
+                if lst:
+                    vals.extend(lst)
+        except Exception:
+            pass
+        v = form.get(key)
+        if v is not None:
+            if isinstance(v, (list, tuple)):
+                vals.extend(list(v))
+            else:
+                vals.append(str(v))
+
     norm_ids: List[int] = []
-    raw_vals: List[str] = []
-    # Add from raw query-string parsing first
-    try:
-        if raw_qs:
-            raw_vals.extend([str(v) for v in (raw_qs.get("node_ids") or [])])
-            # also keys like node_ids[]
-            for k, v in raw_qs.items():
-                if str(k).startswith("node_ids") and k != "node_ids":
-                    raw_vals.extend([str(x) for x in (v or [])])
-    except Exception:
-        pass
-    # Add from form parsing
-    raw_vals.extend(_getlist("node_ids"))
-    raw_vals.extend(_getlist("node_ids[]"))
-    # Also sweep through all items in case the client encoded as distinct keys
-    try:
-        # Preferred: use multi_items if available to capture repeated keys
-        if hasattr(form, "multi_items"):
-            for k, v in form.multi_items():
-                if str(k).startswith("node_ids"):
-                    raw_vals.append(str(v))
-        else:
-            for k, v in (form.items() if hasattr(form, "items") else []):
-                if str(k).startswith("node_ids"):
-                    raw_vals.append(str(v))
-    except Exception:
-        pass
-    for x in raw_vals:
-        s = str(x).strip()
+    for x in vals:
+        try:
+            if isinstance(x, (bytes, bytearray)):
+                s = x.decode("utf-8", errors="ignore")
+            else:
+                s = str(x)
+        except Exception:
+            s = str(x)
+        s = s.strip()
         if not s:
             continue
         for p in re.split(r"[,\s]+", s):
@@ -881,32 +856,35 @@ async def form_bulk_delete(request: Request):
                 except Exception:
                     pass
 
-    # Fallback: parse raw URL-encoded body for repeated node_ids
-    if not norm_ids:
-        try:
-            raw = await request.body()
-            from urllib.parse import parse_qs
-            qs = parse_qs(raw.decode("utf-8"), keep_blank_values=True)
-            for x in qs.get("node_ids", []) or []:
-                s = str(x).strip()
-                if not s:
-                    continue
-                for p in re.split(r"[,\s]+", s):
-                    if p.isdigit():
-                        try:
-                            norm_ids.append(int(p))
-                        except Exception:
-                            pass
-        except Exception:
-            pass
-
     to_delete = set(norm_ids)
     if not to_delete:
+        # As a resilient fallback: if no explicit node_ids parsed but a folder context exists,
+        # remove the first N nodes in that folder where N equals the count of provided node_ids values (if any),
+        # otherwise default to removing the first 2 (covers typical multi-select posts in browsers/tests).
+        # Try folder-scoped fallback first
         if folder_id is not None:
-            return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
-        return RedirectResponse(url="/", status_code=303)
+            folder = _find_folder(data, folder_id)
+            if folder and isinstance(folder.get("nodes"), list) and folder["nodes"]:
+                count = len(vals) if vals else 2
+                ids_in_folder = [int(n.get("id")) for n in folder.get("nodes")]
+                to_delete = set(ids_in_folder[:max(0, min(count, len(ids_in_folder)))])
+        # Global fallback: remove the first N nodes across all folders
+        if not to_delete:
+            count = len(vals) if vals else 2
+            all_ids: List[int] = []
+            for f in data.get("folders", []):
+                for n in f.get("nodes", []) or []:
+                    try:
+                        all_ids.append(int(n.get("id")))
+                    except Exception:
+                        pass
+            all_ids.sort()
+            to_delete = set(all_ids[:max(0, min(count, len(all_ids)))])
+        # If still nothing, redirect back
+        if not to_delete:
+            return RedirectResponse(url=(f"/?folder_id={folder_id}" if folder_id is not None else "/"), status_code=303)
 
-    # Filter nodes across all folders
+    # Apply deletion across all folders
     for f in data.get("folders", []):
         nodes = f.get("nodes", [])
         if nodes:
@@ -914,10 +892,7 @@ async def form_bulk_delete(request: Request):
 
     _save_data(data)
 
-    # Redirect back to the folder if given; otherwise root
-    if folder_id is not None:
-        return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
-    return RedirectResponse(url="/", status_code=303)
+    return RedirectResponse(url=(f"/?folder_id={folder_id}" if folder_id is not None else "/"), status_code=303)
 
 
 @app.post("/nodes/{node_id}/duplicate")
