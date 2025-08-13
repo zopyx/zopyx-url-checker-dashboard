@@ -51,7 +51,11 @@
                   <li class="mb-2">
                     <details {% if selected_folder and selected_folder.id == folder.id %}open{% endif %}>
                       <summary class="d-flex justify-content-between align-items-center">
-                        <span>
+                        <span class="d-inline-flex align-items-center">
+                          <span class="me-1">
+                            <i class="bi bi-caret-right-fill when-closed" aria-hidden="true"></i>
+                            <i class="bi bi-caret-down-fill when-open" aria-hidden="true"></i>
+                          </span>
                           <a href="/?folder_id={{ folder.id }}" class="text-decoration-none{% if selected_folder and selected_folder.id == folder.id %} fw-bold{% endif %}">{{ folder.name }}</a>
                         </span>
                         <span class="d-inline-flex align-items-center gap-2">
@@ -473,9 +477,9 @@
             {% if test_results is defined %}
               <div class="card mt-3">
                 <div class="card-header">Test Results</div>
-                <div class="card-body p-0">
+                <div class="card-body">
                   {% if runs is defined and runs > 1 %}
-                  <div class="px-3 pt-2 small text-muted">Showing last run out of {{ runs }} total runs.</div>
+                  <div class="small text-muted">Showing last run out of {{ runs }} total runs.</div>
                   {% endif %}
                   <div class="table-responsive">
                     <table class="table table-sm table-hover mb-0" id="test-results-table">
@@ -490,10 +494,10 @@
                           <th role="button" data-sort="elapsed" title="Sort by Response time">Response time</th>
                           <th role="button" data-sort="avg" title="Sort by Average">Avg</th>
                           <th role="button" data-sort="min" title="Sort by Min">Min–Max</th>
-                          <th role="button" data-sort="errors" title="Sort by #errors">#errors</th>
+                          <th role="button" data-sort="errors" title="Sort by # errors"># errors</th>
                           <th role="button" data-sort="error" title="Sort by Error">Error</th>
-                          <th role="button" data-sort="ssl_valid" title="Sort by SSL valid">SSL</th>
-                          <th role="button" data-sort="ssl_days_left" title="Sort by SSL days left">SSL Days</th>
+                          <th role="button" data-sort="ssl_valid" title="Sort by Cert valid">Cert</th>
+                          <th role="button" data-sort="ssl_days_left" title="Sort by Cert valid for">Cert valid for</th>
                           <th role="button" data-sort="ssl_error" title="Sort by SSL issue">SSL Issue</th>
                         </tr>
                       </thead>

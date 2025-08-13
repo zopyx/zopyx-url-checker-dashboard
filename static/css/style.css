@@ -6,3 +6,8 @@ body { background-color: var(--bs-body-bg); color: var(--bs-body-color); }
 
 /* Larger checkbox for Active field */
 .form-check-input.form-check-lg { width: 1.6rem; height: 1.6rem; }
+
+/* Folder toggle icons in the left tree */
+details summary .when-open { display: none; }
+details[open] summary .when-open { display: inline; }
+details[open] summary .when-closed { display: none; }
