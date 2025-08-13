@@ -33,6 +33,17 @@ jobs:
           source $HOME/.cargo/env
           uv sync --frozen --dev
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          uv run python3 -m pytest -q -m "not playwright"
+          uv run python3 -m pytest -m "not playwright" \
+            --cov=main --cov=src/endpoint_pulse \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
+          if-no-files-found: error
+          retention-days: 14
