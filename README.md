@@ -190,6 +190,7 @@ These endpoints power the server-rendered UI and redirect back to the main page.
 - POST /nodes/{node_id}/duplicate — duplicate a node (creates copy_N_<base> in same folder)
 - POST /nodes/{node_id}/test/html — test a single node and render results below forms
 - POST /folders/{folder_id}/test/html — test all nodes in the folder and render results below forms
+- POST /folders/{folder_id}/duplicate — duplicate a folder and all its URLs
 - GET /export — download the current hierarchy JSON
 - POST /import — upload a JSON file (multipart/form-data) to replace current hierarchy
 

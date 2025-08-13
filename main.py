@@ -164,40 +164,76 @@ async def _aprobes(urls: List[str], timeout_seconds: int = 10) -> List[Dict[str,
 
 
 def _build_chart_stats(results: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Prepare summary and simple SVG bar geometry for response times.
-    - results: list of rows with possibly 'elapsed_ms', 'ok', 'tested' fields
-    Returns dict with: count_total, count_measured, avg_ms (int or None),
-    width, height, series: list of {x,y,width,height,color,label,ms}.
+    """Build improved geometry for a cleaner inline SVG chart.
+    - Adds margins, proper axes, "nice" y-ticks, and an average line.
+    Returns a dict used by the template to render the SVG.
     """
-    width = 640
-    height = 160
-    gap = 8
+    # Overall SVG size and margins
+    width = 720
+    height = 220
+    margin_left = 48
+    margin_right = 12
+    margin_top = 12
+    margin_bottom = 28
+    plot_w = max(1, width - margin_left - margin_right)
+    plot_h = max(1, height - margin_top - margin_bottom)
+
+    # Data prep
     measured = [r for r in results if isinstance(r.get("elapsed_ms"), int)]
     count_total = len(results)
     count_measured = len(measured)
     avg_ms: Optional[int] = None
-    max_ms = 0
+    dmax = 0
     if count_measured:
         total_ms = sum(r.get("elapsed_ms", 0) for r in measured)
-        avg_ms = int(total_ms / count_measured)
-        max_ms = max(r.get("elapsed_ms", 0) for r in measured)
-    if max_ms <= 0:
-        max_ms = 1
+        avg_ms = int(round(total_ms / count_measured))
+        dmax = max(r.get("elapsed_ms", 0) for r in measured)
+    if dmax <= 0:
+        dmax = 1
+
+    # Compute a "nice" maximum and tick step for the y-axis (1-2-5 progression)
+    def nice_step(raw: float) -> int:
+        if raw <= 0:
+            return 1
+        from math import log10, floor
+        exp = floor(log10(raw))
+        base = raw / (10 ** exp)
+        if base <= 1:
+            nice = 1
+        elif base <= 2:
+            nice = 2
+        elif base <= 5:
+            nice = 5
+        else:
+            nice = 10
+        return int(nice * (10 ** exp))
+
+    nice_max = ((dmax + 9) // 10) * 10  # round up to nearest 10 as baseline
+    step = nice_step(nice_max / 5)  # aim ~5 ticks
+    # Recompute nice_max to be a multiple of step that covers dmax
+    if step <= 0:
+        step = 1
+    nice_max = ((dmax + step - 1) // step) * step
+
+    # Scale helper: ms -> y coordinate within plot
+    def y_for(ms: int) -> int:
+        frac = min(1.0, max(0.0, ms / nice_max))
+        return margin_top + int(round((1.0 - frac) * plot_h))
+
+    # Bars geometry
     n = count_total if count_total > 0 else 1
-    bar_width = max(2, int((width - (n + 1) * gap) / n))
+    gap = 8
+    bar_width = max(3, int((plot_w - (n + 1) * gap) / n))
     series: List[Dict[str, Any]] = []
     for idx, r in enumerate(results):
-        x = gap + idx * (bar_width + gap)
         ms = r.get("elapsed_ms") if isinstance(r.get("elapsed_ms"), int) else 0
-        h = int((ms / max_ms) * (height - 24))
-        y = height - h
+        y = y_for(ms)
+        x = margin_left + gap + idx * (bar_width + gap)
+        h = margin_top + plot_h - y
         if r.get("tested") is False:
             color = "#6c757d"
         else:
-            if r.get("ok"):
-                color = "#198754"
-            else:
-                color = "#dc3545" if (r.get("error") is not None or r.get("status_code") is not None) else "#6c757d"
+            color = "#198754" if r.get("ok") else ("#dc3545" if (r.get("error") is not None or r.get("status_code") is not None) else "#6c757d")
         label = str(r.get("name") or idx + 1)
         series.append({
             "x": x,
@@ -207,15 +243,37 @@ def _build_chart_stats(results: List[Dict[str, Any]]) -> Dict[str, Any]:
             "color": color,
             "label": label,
             "ms": ms,
+            "xlabel": str(idx + 1),
         })
+
+    # Y-axis ticks
+    y_ticks: List[Dict[str, Any]] = []
+    tick = 0
+    while tick <= nice_max:
+        y = y_for(tick)
+        y_ticks.append({"y": y, "ms": tick, "label": f"{tick} ms"})
+        tick += step
+
+    baseline_y = margin_top + plot_h
+    avg_y = y_for(avg_ms) if avg_ms is not None else None
+
     return {
         "count_total": count_total,
         "count_measured": count_measured,
         "avg_ms": avg_ms,
         "width": width,
         "height": height,
-        "gap": gap,
         "series": series,
+        "y_ticks": y_ticks,
+        "max_ms": nice_max,
+        "margin_left": margin_left,
+        "margin_right": margin_right,
+        "margin_top": margin_top,
+        "margin_bottom": margin_bottom,
+        "plot_w": plot_w,
+        "plot_h": plot_h,
+        "baseline_y": baseline_y,
+        "avg_y": avg_y,
     }
 
 
@@ -418,6 +476,48 @@ async def form_delete_folder(folder_id: int):
     return RedirectResponse(url="/", status_code=303)
 
 
+@app.post("/folders/{folder_id}/duplicate")
+async def form_duplicate_folder(folder_id: int):
+    """Duplicate a folder and all its nodes.
+    The new folder name follows copy_N_<base> to ensure uniqueness among folders.
+    All nodes are copied with new IDs and linked to the new folder.
+    """
+    data = _load_data()
+    src = _find_folder(data, folder_id)
+    if not src:
+        raise HTTPException(status_code=404, detail="Folder not found")
+
+    # Compute a unique copy name among folder names
+    existing_names = [f.get("name", "") for f in data.get("folders", [])]
+    copy_name = _next_copy_name(existing_names, src.get("name", ""))
+
+    # Allocate new folder id
+    new_folder_id = data.get("next_folder_id", 1)
+    data["next_folder_id"] = new_folder_id + 1
+
+    # Prepare cloned nodes with fresh IDs and correct folder_id
+    new_nodes: List[Dict[str, Any]] = []
+    for n in src.get("nodes", []) or []:
+        new_node_id = data.get("next_node_id", 1)
+        data["next_node_id"] = new_node_id + 1
+        new_nodes.append({
+            "id": new_node_id,
+            "folder_id": new_folder_id,
+            "name": n.get("name", ""),  # keep original node names
+            "url": n.get("url", ""),
+            "comment": n.get("comment", ""),
+            "active": bool(n.get("active", True)),
+        })
+
+    # Append the new folder
+    new_folder = {"id": new_folder_id, "name": copy_name, "nodes": new_nodes}
+    data.setdefault("folders", []).append(new_folder)
+    _save_data(data)
+
+    # Focus the new folder
+    return RedirectResponse(url=f"/?folder_id={new_folder_id}", status_code=303)
+
+
 @app.post("/nodes/add")
 async def form_add_node(
     folder_id: int = Form(...),
@@ -453,8 +553,8 @@ async def form_add_node(
     }
     f.setdefault("nodes", []).append(new_node)
     _save_data(data)
-    # After adding, focus the new node
-    return RedirectResponse(url=f"/?node_id={node_id}", status_code=303)
+    # After adding from the folder view, keep folder context and update the list
+    return RedirectResponse(url=f"/?folder_id={folder_id}", status_code=303)
 
 
 @app.post("/nodes/{node_id}/edit")
@@ -587,7 +687,7 @@ async def form_bulk_delete(
 
 
 @app.post("/nodes/{node_id}/duplicate")
-async def form_duplicate_node(node_id: int):
+async def form_duplicate_node(node_id: int, keep_folder_context: Optional[str] = Form(None)):
     data = _load_data()
     src = _find_node(data, node_id)
     if not src:
@@ -612,6 +712,9 @@ async def form_duplicate_node(node_id: int):
     }
     folder.setdefault("nodes", []).append(new_node)
     _save_data(data)
+    # Redirect based on context: keep folder view if requested, else focus the new node
+    if keep_folder_context:
+        return RedirectResponse(url=f"/?folder_id={folder.get('id')}", status_code=303)
     return RedirectResponse(url=f"/?node_id={new_id}", status_code=303)
 
 

@@ -38,7 +38,7 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <span class="fw-semibold">Folders</span>
             <div class="d-flex gap-2">
-              <a href="/" class="btn btn-sm btn-outline-secondary">Reset</a>
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#confirmResetModal">Reset</button>
               <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addFolderModal">
                 <i class="bi bi-plus-lg"></i> Add
               </button>
@@ -126,6 +126,7 @@
                 </div>
                 <div class="col-md-4 d-flex gap-2">
                   <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteFolder-{{ selected_folder.id }}">Delete</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#confirmDuplicateFolder-{{ selected_folder.id }}">Duplicate</button>
                   <form method="post" action="/folders/{{ selected_folder.id }}/test/html" class="m-0">
                     <button type="submit" class="btn btn-outline-primary">Test all URLs</button>
                   </form>
@@ -145,6 +146,27 @@
                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                           <form method="post" action="/folders/{{ selected_folder.id }}/delete" class="m-0">
                             <button type="submit" class="btn btn-danger">Delete</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Duplicate Folder Modal -->
+                  <div class="modal fade" id="confirmDuplicateFolder-{{ selected_folder.id }}" tabindex="-1" aria-labelledby="confirmDuplicateFolderLabel-{{ selected_folder.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="confirmDuplicateFolderLabel-{{ selected_folder.id }}">Duplicate Folder</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          Create a copy of the folder "{{ selected_folder.name }}" and all of its URLs?
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <form method="post" action="/folders/{{ selected_folder.id }}/duplicate" class="m-0">
+                            <button type="submit" class="btn btn-secondary">Duplicate</button>
                           </form>
                         </div>
                       </div>
@@ -186,7 +208,7 @@
                   <div class="fw-semibold">URLs in "{{ selected_folder.name }}"</div>
                   {% if selected_folder.nodes and selected_folder.nodes|length > 0 %}
                   <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete selected URLs" id="delete-selected-btn" form="bulkDeleteForm">
+                    <button type="button" class="btn btn-sm btn-outline-danger" title="Delete selected URLs" id="delete-selected-btn" data-bs-toggle="modal" data-bs-target="#confirmDeleteSelected-{{ selected_folder.id }}">
                       <i class="bi bi-trash"></i> Delete selected
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteAllInFolder-{{ selected_folder.id }}" title="Delete all URLs in this folder">
@@ -200,6 +222,26 @@
                   <form method="post" action="/nodes/bulk_delete" id="bulkDeleteForm">
                     <input type="hidden" name="folder_id" value="{{ selected_folder.id }}" />
                   </form>
+                  
+                  <!-- Delete Selected Modal -->
+                  <div class="modal fade" id="confirmDeleteSelected-{{ selected_folder.id }}" tabindex="-1" aria-labelledby="confirmDeleteSelectedLabel-{{ selected_folder.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="confirmDeleteSelectedLabel-{{ selected_folder.id }}">Delete selected URLs</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          Are you sure you want to delete the selected URLs from the folder "{{ selected_folder.name }}"? This action cannot be undone.
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <!-- Submit the existing bulkDeleteForm which carries selected node_ids -->
+                          <button type="submit" class="btn btn-danger" form="bulkDeleteForm">Delete selected</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div class="table-responsive">
                       <table class="table table-sm table-hover align-middle" id="nodes-table">
                         <thead>
@@ -230,7 +272,7 @@
                                   </button>
                                 </form>
                               </td>
-                              <td class="text-end">
+                              <td class="text-end text-nowrap">
                                 <form method="post" action="/nodes/{{ node.id }}/test/html" class="d-inline">
                                   <input type="hidden" name="keep_folder_context" value="1" />
                                   <button type="submit" class="btn btn-sm btn-outline-primary p-0 px-1" title="Test" aria-label="Test">
@@ -238,6 +280,7 @@
                                   </button>
                                 </form>
                                 <form method="post" action="/nodes/{{ node.id }}/duplicate" class="d-inline ms-1">
+                                  <input type="hidden" name="keep_folder_context" value="1" />
                                   <button type="submit" class="btn btn-sm btn-outline-secondary p-0 px-1" title="Duplicate" aria-label="Duplicate">
                                     <i class="bi bi-files"></i>
                                   </button>
@@ -419,14 +462,32 @@
                 <div class="card-body">
                   <div class="w-100">
                     <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" width="100%" height="{{ chart.height }}">
+                      <!-- Grid lines and Y-axis labels -->
+                      {% if chart.y_ticks %}
+                        {% for t in chart.y_ticks %}
+                          <line x1="{{ chart.margin_left }}" y1="{{ t.y }}" x2="{{ chart.width - chart.margin_right }}" y2="{{ t.y }}" stroke="var(--bs-border-color)" stroke-width="1" opacity="0.3" />
+                          <text x="{{ chart.margin_left - 6 }}" y="{{ t.y - 2 }}" fill="var(--bs-secondary-color)" font-size="10" text-anchor="end">{{ t.label }}</text>
+                        {% endfor %}
+                      {% endif %}
+
+                      <!-- Average line -->
+                      {% if chart.avg_y is not none %}
+                        <line x1="{{ chart.margin_left }}" y1="{{ chart.avg_y }}" x2="{{ chart.width - chart.margin_right }}" y2="{{ chart.avg_y }}" stroke="var(--bs-danger)" stroke-width="1" stroke-dasharray="4 3" />
+                        <text x="{{ chart.width - chart.margin_right }}" y="{{ chart.avg_y - 4 }}" fill="var(--bs-danger)" font-size="10" text-anchor="end">avg {{ chart.avg_ms }} ms</text>
+                      {% endif %}
+
                       <!-- Bars -->
                       {% for b in chart.series %}
                         <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.width }}" height="{{ b.height }}" fill="{{ b.color }}">
                           <title>{{ b.label }} — {% if b.ms %}{{ b.ms }} ms{% else %}n/a{% endif %}</title>
                         </rect>
+                        <!-- X label -->
+                        <text x="{{ b.x + (b.width/2) }}" y="{{ chart.baseline_y + 12 }}" fill="var(--bs-secondary-color)" font-size="9" text-anchor="middle">{{ b.xlabel }}</text>
                       {% endfor %}
-                      <!-- Baseline -->
-                      <line x1="0" y1="{{ chart.height }}" x2="{{ chart.width }}" y2="{{ chart.height }}" stroke="var(--bs-border-color)" stroke-width="1" />
+
+                      <!-- Axes -->
+                      <line x1="{{ chart.margin_left }}" y1="{{ chart.baseline_y }}" x2="{{ chart.width - chart.margin_right }}" y2="{{ chart.baseline_y }}" stroke="var(--bs-border-color)" stroke-width="1" />
+                      <line x1="{{ chart.margin_left }}" y1="{{ chart.margin_top }}" x2="{{ chart.margin_left }}" y2="{{ chart.baseline_y }}" stroke="var(--bs-border-color)" stroke-width="1" />
                     </svg>
                   </div>
                   <div class="small text-muted mt-2">
@@ -449,6 +510,27 @@
       </div>
     </div>
   </div>
+  <!-- Reset Modal -->
+  <div class="modal fade" id="confirmResetModal" tabindex="-1" aria-labelledby="confirmResetModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmResetModalLabel">Reset View</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          This will reset the selection and return to the start view. No data will be deleted. Continue?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <form method="get" action="/" class="m-0">
+            <button type="submit" class="btn btn-primary">Reset</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Add Folder Modal -->
   <div class="modal fade" id="addFolderModal" tabindex="-1" aria-labelledby="addFolderModalLabel" aria-hidden="true">
     <div class="modal-dialog">

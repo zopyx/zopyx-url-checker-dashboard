@@ -1,10 +1,10 @@
 {
-  "next_folder_id": 12,
-  "next_node_id": 64,
+  "next_folder_id": 14,
+  "next_node_id": 79,
   "folders": [
     {
       "id": 6,
-      "name": "ZOPYX Test",
+      "name": "ZOPYX Test 2",
       "nodes": [
         {
           "id": 54,
@@ -15,42 +15,26 @@
           "active": true
         },
         {
-          "id": 55,
+          "id": 66,
           "folder_id": 6,
-          "name": "copy_1_heise",
+          "name": "copy_3_heise",
           "url": "https://heise.de/",
           "comment": "",
           "active": true
         },
         {
-          "id": 59,
+          "id": 68,
           "folder_id": 6,
-          "name": "copy_4_heise",
-          "url": "https://heise.de/",
+          "name": "Spiegel",
+          "url": "https://spiegel.de/",
           "comment": "",
           "active": true
         },
         {
-          "id": 60,
+          "id": 69,
           "folder_id": 6,
-          "name": "copy_5_heise",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 61,
-          "folder_id": 6,
-          "name": "copy_6_heise",
-          "url": "https://heise.de/",
-          "comment": "",
-          "active": true
-        },
-        {
-          "id": 62,
-          "folder_id": 6,
-          "name": "copy_7_heise",
-          "url": "https://heise.de/",
+          "name": "Jung",
+          "url": "https://andreas-jung.com/",
           "comment": "",
           "active": true
         }
@@ -71,6 +55,82 @@
           "name": "Gemini Test URL",
           "url": "https://gemini.google.com/",
           "comment": "A test URL added by Gemini",
+          "active": true
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "copy_1_ZOPYX Test 2",
+      "nodes": [
+        {
+          "id": 70,
+          "folder_id": 12,
+          "name": "heise",
+          "url": "https://heise.de/",
+          "comment": "",
+          "active": true
+        },
+        {
+          "id": 71,
+          "folder_id": 12,
+          "name": "copy_3_heise",
+          "url": "https://heise.de/",
+          "comment": "",
+          "active": true
+        },
+        {
+          "id": 72,
+          "folder_id": 12,
+          "name": "Spiegel",
+          "url": "https://spiegel.de/",
+          "comment": "",
+          "active": true
+        },
+        {
+          "id": 73,
+          "folder_id": 12,
+          "name": "Jung",
+          "url": "https://andreas-jung.com/",
+          "comment": "",
+          "active": true
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "copy_2_ZOPYX Test 2",
+      "nodes": [
+        {
+          "id": 74,
+          "folder_id": 13,
+          "name": "heise",
+          "url": "https://heise.de/",
+          "comment": "",
+          "active": true
+        },
+        {
+          "id": 76,
+          "folder_id": 13,
+          "name": "Spiegel",
+          "url": "https://spiegel.de/",
+          "comment": "",
+          "active": true
+        },
+        {
+          "id": 77,
+          "folder_id": 13,
+          "name": "Jung",
+          "url": "https://andreas-jung.com/",
+          "comment": "",
+          "active": true
+        },
+        {
+          "id": 78,
+          "folder_id": 13,
+          "name": "xxxx",
+          "url": "https://romeo.cxxxxx/",
+          "comment": "",
           "active": true
         }
       ]
