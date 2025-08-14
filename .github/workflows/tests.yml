@@ -36,7 +36,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           uv run python3 -m pytest -m "not playwright" \
-            --cov=main --cov=src/endpoint_pulse \
+            --cov=src --cov=src/endpoint_pulse \
             --cov-report=term-missing \
             --cov-report=xml:coverage.xml
 
