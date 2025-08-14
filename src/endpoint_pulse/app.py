@@ -1,3 +1,13 @@
+"""
+This module contains the main application logic for the Endpoint Pulse dashboard.
+
+It uses the FastAPI framework to create a web interface for monitoring the health of
+various endpoints. The application supports organizing endpoints into folders,
+testing them individually or as a group, and visualizing the results.
+
+The data is stored in a SQLite database, and the application provides both a web
+interface (HTML) and a JSON API for interacting with the data.
+"""
 from __future__ import annotations
 
 import os
@@ -21,8 +31,18 @@ from pydantic import BaseModel, Field, HttpUrl
 
 
 
-
 def _resolve_db_file() -> Path:
+    """
+    Resolves the path to the SQLite database file.
+
+    The path is determined by checking the following environment variables in order:
+    1. DB_FILE
+    2. DATA_FILE (with a .sqlite3 extension)
+    If neither is set, it defaults to "data.sqlite3" in the current directory.
+
+    Returns:
+        Path: The path to the database file.
+    """
     env_db = os.environ.get("DB_FILE")
     if env_db:
         return Path(env_db)
@@ -33,6 +53,15 @@ def _resolve_db_file() -> Path:
 
 
 def _get_conn() -> sqlite3.Connection:
+    """
+    Establishes a connection to the SQLite database.
+
+    Ensures the parent directory for the database file exists and enables foreign key
+    support for the connection.
+
+    Returns:
+        sqlite3.Connection: A connection object to the database.
+    """
     db_file = _resolve_db_file()
     db_file.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(db_file))
@@ -43,6 +72,11 @@ def _get_conn() -> sqlite3.Connection:
 
 
 def _init_db() -> None:
+    """
+    Initializes the database by creating the necessary tables if they don't exist.
+
+    The schema includes tables for metadata, folders, and nodes.
+    """
     with _get_conn() as conn:
         cur = conn.cursor()
         cur.execute(
@@ -78,6 +112,15 @@ def _init_db() -> None:
 
 
 def _load_data() -> Dict[str, Any]:
+    """
+    Loads all folders and nodes from the database.
+
+    It also determines the next available folder and node IDs.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the loaded data, including folders,
+                        nodes, and the next available IDs.
+    """
     # Ensure schema exists (safety for tests or direct calls)
     _init_db()
     with _get_conn() as conn:
@@ -164,6 +207,7 @@ def _save_data(data: Dict[str, Any]) -> None:
 
 # Pydantic models
 class NodeIn(BaseModel):
+    """Pydantic model for creating a new node."""
     name: str = Field(min_length=1, max_length=200)
     url: HttpUrl
     comment: Optional[str] = ""
@@ -171,15 +215,18 @@ class NodeIn(BaseModel):
 
 
 class Node(NodeIn):
+    """Pydantic model for a node, including its ID and folder ID."""
     id: int
     folder_id: int
 
 
 class FolderIn(BaseModel):
+    """Pydantic model for creating a new folder."""
     name: str = Field(min_length=1, max_length=200)
 
 
 class Folder(FolderIn):
+    """Pydantic model for a folder, including its ID and a list of nodes."""
     id: int
     nodes: List[Node] = []
 
@@ -189,6 +236,14 @@ from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    An async context manager for the lifespan of the FastAPI application.
+
+    It initializes the database schema once at startup.
+
+    Args:
+        app (FastAPI): The FastAPI application instance.
+    """
     # Initialize database schema once at startup (reduces per-request overhead)
     _init_db()
     yield
@@ -196,7 +251,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Endpoint Pulse", version="0.1.0", lifespan=lifespan)
 
 # Static and templates
-BASE_DIR = Path(__file__).parent 
+BASE_DIR = Path(__file__).parent
 static_dir = BASE_DIR / "static"
 templates_dir = BASE_DIR / "templates"
 static_dir.mkdir(parents=True, exist_ok=True)
@@ -208,6 +263,17 @@ templates = Jinja2Templates(directory=str(templates_dir))
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request, folder_id: Optional[int] = None, node_id: Optional[int] = None):
+    """
+    Renders the main index page.
+
+    Args:
+        request (Request): The incoming request.
+        folder_id (Optional[int]): The ID of the folder to select.
+        node_id (Optional[int]): The ID of the node to select.
+
+    Returns:
+        HTMLResponse: The rendered HTML page.
+    """
     data = _load_data()
     selected_folder = None
     selected_node = None
@@ -243,6 +309,16 @@ async def index(request: Request, folder_id: Optional[int] = None, node_id: Opti
 # Helper finders
 
 def _find_folder(data: Dict[str, Any], folder_id: int) -> Optional[Dict[str, Any]]:
+    """
+    Finds a folder by its ID.
+
+    Args:
+        data (Dict[str, Any]): The data dictionary containing all folders.
+        folder_id (int): The ID of the folder to find.
+
+    Returns:
+        Optional[Dict[str, Any]]: The folder dictionary if found, otherwise None.
+    """
     for f in data["folders"]:
         if f["id"] == folder_id:
             return f
@@ -250,6 +326,16 @@ def _find_folder(data: Dict[str, Any], folder_id: int) -> Optional[Dict[str, Any
 
 
 def _find_node(data: Dict[str, Any], node_id: int) -> Optional[Dict[str, Any]]:
+    """
+    Finds a node by its ID.
+
+    Args:
+        data (Dict[str, Any]): The data dictionary containing all folders and nodes.
+        node_id (int): The ID of the node to find.
+
+    Returns:
+        Optional[Dict[str, Any]]: The node dictionary if found, otherwise None.
+    """
     for f in data["folders"]:
         for n in f.get("nodes", []):
             if n["id"] == node_id:
@@ -309,6 +395,17 @@ def _get_ssl_cert_info(url: str, timeout_seconds: int = 10) -> Dict[str, Any]:
 
 
 def _probe_url(url: str, timeout_seconds: int = 10) -> Dict[str, Any]:
+    """
+    Probes a single URL to check its status and response time.
+
+    Args:
+        url (str): The URL to probe.
+        timeout_seconds (int): The timeout for the request in seconds.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the probe result, including status,
+                        response time, and SSL certificate information.
+    """
     t0 = time.perf_counter()
     try:
         timeout = httpx.Timeout(timeout_seconds)
@@ -343,6 +440,16 @@ def _probe_url(url: str, timeout_seconds: int = 10) -> Dict[str, Any]:
 
 
 async def _aprobes(urls: List[str], timeout_seconds: int = 10) -> List[Dict[str, Any]]:
+    """
+    Probes multiple URLs concurrently.
+
+    Args:
+        urls (List[str]): A list of URLs to probe.
+        timeout_seconds (int): The timeout for each request in seconds.
+
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries containing the probe results.
+    """
     async def fetch_one(client: httpx.AsyncClient, url: str) -> Dict[str, Any]:
         t0 = time.perf_counter()
         try:
@@ -512,12 +619,27 @@ def _build_chart_stats(results: List[Dict[str, Any]]) -> Dict[str, Any]:
 # API endpoints (JSON)
 @app.get("/api/tree")
 async def get_tree() -> Dict[str, Any]:
+    """
+    Retrieves the entire folder and node tree.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the list of folders.
+    """
     data = _load_data()
     return {"folders": data.get("folders", [])}
 
 
 @app.post("/api/folders")
 async def create_folder(folder: FolderIn) -> Dict[str, Any]:
+    """
+    Creates a new folder.
+
+    Args:
+        folder (FolderIn): The folder data.
+
+    Returns:
+        Dict[str, Any]: The newly created folder.
+    """
     data = _load_data()
     folder_id = data.get("next_folder_id", 1)
     data["next_folder_id"] = folder_id + 1
@@ -529,6 +651,16 @@ async def create_folder(folder: FolderIn) -> Dict[str, Any]:
 
 @app.put("/api/folders/{folder_id}")
 async def rename_folder(folder_id: int, folder: FolderIn) -> Dict[str, Any]:
+    """
+    Renames an existing folder.
+
+    Args:
+        folder_id (int): The ID of the folder to rename.
+        folder (FolderIn): The new folder data.
+
+    Returns:
+        Dict[str, Any]: The updated folder.
+    """
     data = _load_data()
     f = _find_folder(data, folder_id)
     if not f:
@@ -540,8 +672,17 @@ async def rename_folder(folder_id: int, folder: FolderIn) -> Dict[str, Any]:
 
 @app.delete("/api/folders/{folder_id}")
 async def delete_folder(folder_id: int) -> Dict[str, Any]:
+    """
+    Deletes a folder and all its nodes.
+
+    Args:
+        folder_id (int): The ID of the folder to delete.
+
+    Returns:
+        Dict[str, Any]: A confirmation message.
+    """
     data = _load_data()
-    before = len(data["folders"]) 
+    before = len(data["folders"])
     data["folders"] = [f for f in data["folders"] if f["id"] != folder_id]
     if len(data["folders"]) == before:
         raise HTTPException(status_code=404, detail="Folder not found")
@@ -551,6 +692,16 @@ async def delete_folder(folder_id: int) -> Dict[str, Any]:
 
 @app.post("/api/folders/{folder_id}/nodes")
 async def create_node(folder_id: int, node: NodeIn) -> Dict[str, Any]:
+    """
+    Creates a new node within a folder.
+
+    Args:
+        folder_id (int): The ID of the folder to add the node to.
+        node (NodeIn): The node data.
+
+    Returns:
+        Dict[str, Any]: The newly created node.
+    """
     data = _load_data()
     f = _find_folder(data, folder_id)
     if not f:
@@ -572,6 +723,16 @@ async def create_node(folder_id: int, node: NodeIn) -> Dict[str, Any]:
 
 @app.put("/api/nodes/{node_id}")
 async def update_node(node_id: int, node: NodeIn) -> Dict[str, Any]:
+    """
+    Updates an existing node.
+
+    Args:
+        node_id (int): The ID of the node to update.
+        node (NodeIn): The new node data.
+
+    Returns:
+        Dict[str, Any]: The updated node.
+    """
     data = _load_data()
     target = _find_node(data, node_id)
     if not target:
@@ -588,6 +749,15 @@ async def update_node(node_id: int, node: NodeIn) -> Dict[str, Any]:
 
 @app.delete("/api/nodes/{node_id}")
 async def delete_node(node_id: int) -> Dict[str, Any]:
+    """
+    Deletes a node.
+
+    Args:
+        node_id (int): The ID of the node to delete.
+
+    Returns:
+        Dict[str, Any]: A confirmation message.
+    """
     data = _load_data()
     found = False
     for f in data["folders"]:
@@ -605,6 +775,15 @@ async def delete_node(node_id: int) -> Dict[str, Any]:
 
 @app.post("/api/nodes/{node_id}/test")
 async def test_node(node_id: int) -> Dict[str, Any]:
+    """
+    Tests a single node.
+
+    Args:
+        node_id (int): The ID of the node to test.
+
+    Returns:
+        Dict[str, Any]: The test result.
+    """
     data = _load_data()
     n = _find_node(data, node_id)
     if not n:
@@ -620,6 +799,15 @@ async def test_node(node_id: int) -> Dict[str, Any]:
 
 @app.post("/api/folders/{folder_id}/test")
 async def test_folder(folder_id: int) -> Dict[str, Any]:
+    """
+    Tests all active nodes in a folder.
+
+    Args:
+        folder_id (int): The ID of the folder to test.
+
+    Returns:
+        Dict[str, Any]: The test results for the folder.
+    """
     data = _load_data()
     f = _find_folder(data, folder_id)
     if not f:
@@ -668,6 +856,15 @@ async def test_folder(folder_id: int) -> Dict[str, Any]:
 # Form-based HTML routes
 @app.post("/folders/add")
 async def form_add_folder(name: str = Form(...)):
+    """
+    Handles the form submission for adding a new folder.
+
+    Args:
+        name (str): The name of the new folder.
+
+    Returns:
+        RedirectResponse: A redirect to the main page, focusing on the new folder.
+    """
     # Trim and validate
     name = (name or "").strip()
     if not name:
@@ -683,6 +880,16 @@ async def form_add_folder(name: str = Form(...)):
 
 @app.post("/folders/{folder_id}/rename")
 async def form_rename_folder(folder_id: int, name: str = Form(...)):
+    """
+    Handles the form submission for renaming a folder.
+
+    Args:
+        folder_id (int): The ID of the folder to rename.
+        name (str): The new name for the folder.
+
+    Returns:
+        RedirectResponse: A redirect to the main page, focusing on the renamed folder.
+    """
     # Trim and validate
     name = (name or "").strip()
     if not name:
@@ -698,6 +905,15 @@ async def form_rename_folder(folder_id: int, name: str = Form(...)):
 
 @app.post("/folders/{folder_id}/delete")
 async def form_delete_folder(folder_id: int):
+    """
+    Handles the form submission for deleting a folder.
+
+    Args:
+        folder_id (int): The ID of the folder to delete.
+
+    Returns:
+        RedirectResponse: A redirect to the main page.
+    """
     data = _load_data()
     before = len(data.get("folders", []))
     data["folders"] = [f for f in data.get("folders", []) if f["id"] != folder_id]
@@ -758,6 +974,19 @@ async def form_add_node(
     comment: str = Form("") ,
     active: Optional[str] = Form(None),
 ):
+    """
+    Handles the form submission for adding a new node to a folder.
+
+    Args:
+        folder_id (int): The ID of the folder to add the node to.
+        name (str): The name of the new node.
+        url (str): The URL of the new node.
+        comment (str): An optional comment for the new node.
+        active (Optional[str]): Whether the new node is active.
+
+    Returns:
+        RedirectResponse: A redirect to the main page, focusing on the parent folder.
+    """
     # Trim values
     name = (name or "").strip()
     url = (url or "").strip()
@@ -797,6 +1026,19 @@ async def form_edit_node(
     comment: str = Form(""),
     active: Optional[str] = Form(None),
 ):
+    """
+    Handles the form submission for editing a node.
+
+    Args:
+        node_id (int): The ID of the node to edit.
+        name (str): The new name for the node.
+        url (str): The new URL for the node.
+        comment (str): The new comment for the node.
+        active (Optional[str]): The new active state for the node.
+
+    Returns:
+        RedirectResponse: A redirect to the main page, focusing on the edited node.
+    """
     data = _load_data()
     target = _find_node(data, node_id)
     if not target:
@@ -823,6 +1065,15 @@ async def form_edit_node(
 
 @app.post("/nodes/{node_id}/delete")
 async def form_delete_node(node_id: int):
+    """
+    Handles the form submission for deleting a node.
+
+    Args:
+        node_id (int): The ID of the node to delete.
+
+    Returns:
+        RedirectResponse: A redirect to the main page, focusing on the parent folder.
+    """
     data = _load_data()
     parent_folder_id = None
     for f in data.get("folders", []):
@@ -946,6 +1197,18 @@ async def form_bulk_delete(request: Request):
 
 @app.post("/nodes/{node_id}/duplicate")
 async def form_duplicate_node(node_id: int, keep_folder_context: Optional[str] = Form(None)):
+    """
+    Handles the form submission for duplicating a node.
+
+    Args:
+        node_id (int): The ID of the node to duplicate.
+        keep_folder_context (Optional[str]): If present, keeps the folder context
+                                             instead of focusing on the new node.
+
+    Returns:
+        RedirectResponse: A redirect to the main page, focusing on the new node or
+                        the parent folder.
+    """
     data = _load_data()
     src = _find_node(data, node_id)
     if not src:
@@ -978,6 +1241,16 @@ async def form_duplicate_node(node_id: int, keep_folder_context: Optional[str] =
 
 @app.post("/nodes/{node_id}/toggle_active")
 async def form_toggle_node_active(request: Request, node_id: int):
+    """
+    Handles the form submission for toggling the active state of a node.
+
+    Args:
+        request (Request): The incoming request.
+        node_id (int): The ID of the node to toggle.
+
+    Returns:
+        RedirectResponse: A redirect to the appropriate page based on the referer.
+    """
     data = _load_data()
     n = _find_node(data, node_id)
     if not n:
@@ -1006,6 +1279,19 @@ async def form_toggle_node_active(request: Request, node_id: int):
 
 @app.post("/nodes/{node_id}/test/html")
 async def form_test_node_html(request: Request, node_id: int, keep_folder_context: Optional[str] = Form(None)):
+    """
+    Handles the form submission for testing a single node and displaying the result
+    in an HTML page.
+
+    Args:
+        request (Request): The incoming request.
+        node_id (int): The ID of the node to test.
+        keep_folder_context (Optional[str]): If present, keeps the folder context
+                                             instead of focusing on the tested node.
+
+    Returns:
+        TemplateResponse: The rendered HTML page with the test results.
+    """
     # Run test and show results table (same layout as multi-URL); by default keep the node selected
     data = _load_data()
     n = _find_node(data, node_id)
@@ -1068,6 +1354,18 @@ async def form_test_node_html(request: Request, node_id: int, keep_folder_contex
 
 @app.post("/folders/{folder_id}/test/html")
 async def form_test_folder_html(request: Request, folder_id: int, runs: Optional[int] = Form(None)):
+    """
+    Handles the form submission for testing all active nodes in a folder and
+    displaying the results in an HTML page.
+
+    Args:
+        request (Request): The incoming request.
+        folder_id (int): The ID of the folder to test.
+        runs (Optional[int]): The number of times to run the test.
+
+    Returns:
+        TemplateResponse: The rendered HTML page with the test results.
+    """
     data = _load_data()
     f = _find_folder(data, folder_id)
     if not f:
@@ -1208,6 +1506,17 @@ async def form_test_folder_html(request: Request, folder_id: int, runs: Optional
 
 @app.post("/preferences")
 async def set_preferences(request: Request, dark_mode: Optional[str] = Form(None), timeout_seconds: Optional[int] = Form(None)):
+    """
+    Sets user preferences, such as theme and timeout, as cookies.
+
+    Args:
+        request (Request): The incoming request.
+        dark_mode (Optional[str]): Whether to enable dark mode.
+        timeout_seconds (Optional[int]): The request timeout in seconds.
+
+    Returns:
+        RedirectResponse: A redirect to the appropriate page.
+    """
     # Determine where to redirect back to
     referer = request.headers.get("referer") or "/"
     theme = "dark" if dark_mode else "light"
@@ -1257,8 +1566,13 @@ async def set_preferences(request: Request, dark_mode: Optional[str] = Form(None
 # Basic healthcheck
 @app.get("/healthz")
 async def healthz():
-    return {"status": "ok"}
+    """
+    A simple health check endpoint.
 
+    Returns:
+        Dict[str, str]: A dictionary with the status "ok".
+    """
+    return {"status": "ok"}
 
 
 
@@ -1384,7 +1698,7 @@ async def form_test_selected_html(request: Request, folder_id: int, runs: Option
         for _ in range(runs_val):
             round_results = await _aprobes(active_urls, timeout_seconds=timeout_seconds)
             last_idx_to_result = {i: res for i, res in zip(active_indices, round_results)}
-            for i, res in zip(active_indices, round_results):
+            for i, res in zip(.venv/lib/python3.12/site-packages/greenlet/platform/cpp_ucontext.hactive_indices, round_results):
                 node = nodes[i]
                 m = dict(res)
                 m["id"] = node.get("id")
@@ -1466,7 +1780,7 @@ async def form_test_selected_html(request: Request, folder_id: int, runs: Option
         "folders": data.get("folders", []),
         "selected_folder": f,
         "selected_node": None,
-        "test_results": results,
+.venv/lib/python3.12/site-packages/greenlet/platform/switch_arm32_gcc.h        "test_results": results,
         "chart": chart,
         "theme": theme,
         "timeout_seconds": timeout_seconds,
