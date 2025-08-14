@@ -566,18 +566,24 @@
                 </div>
                 <div class="card-body">
                   <div class="w-100 overflow-auto">
-                    <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" width="{{ chart.width }}" height="{{ chart.height }}">
+                    {% set _W = chart.width|default(720) %}
+                    {% set _H = chart.height|default(220) %}
+                    {% set _MR = chart.margin_right|default(12) %}
+                    {% set _ML = chart.margin_left|default(48) %}
+                    {% set _MT = chart.margin_top|default(12) %}
+                    {% set _BL = (chart.baseline_y if chart.baseline_y is defined else (_H - (chart.margin_bottom|default(28)))) %}
+                    <svg viewBox="0 0 {{ _W }} {{ _H }}" width="{{ _W }}" height="{{ _H }}">
                       <!-- Grid lines and Y-axis labels -->
                       {% if chart.y_ticks %}
                         {% for t in chart.y_ticks %}
-                          <line x1="{{ chart.margin_left }}" y1="{{ t.y }}" x2="{{ chart.width - chart.margin_right }}" y2="{{ t.y }}" stroke="var(--bs-border-color)" stroke-width="1" opacity="0.3" />
-                          <text x="{{ chart.margin_left - 6 }}" y="{{ t.y - 2 }}" fill="var(--bs-secondary-color)" font-size="10" text-anchor="end">{{ t.label }}</text>
+                          <line x1="{{ _ML }}" y1="{{ t.y }}" x2="{{ _W - _MR }}" y2="{{ t.y }}" stroke="var(--bs-border-color)" stroke-width="1" opacity="0.3" />
+                          <text x="{{ _ML - 6 }}" y="{{ t.y - 2 }}" fill="var(--bs-secondary-color)" font-size="10" text-anchor="end">{{ t.label }}</text>
                         {% endfor %}
                       {% endif %}
 
                       <!-- Average line -->
                       {% if chart.avg_y is not none %}
-                        <line x1="0" y1="{{ chart.avg_y }}" x2="{{ chart.width }}" y2="{{ chart.avg_y }}" stroke="var(--bs-danger)" stroke-width="1" stroke-dasharray="4 3" />
+                        <line x1="0" y1="{{ chart.avg_y }}" x2="{{ _W }}" y2="{{ chart.avg_y }}" stroke="var(--bs-danger)" stroke-width="1" stroke-dasharray="4 3" />
                         <text x="{{ chart.width - chart.margin_right }}" y="{{ chart.avg_y - 4 }}" fill="var(--bs-danger)" font-size="10" text-anchor="end">avg {{ chart.avg_ms }} ms</text>
                       {% endif %}
 
