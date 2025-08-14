@@ -5,7 +5,7 @@ from typing import List
 import pytest
 from fastapi.testclient import TestClient
 
-import main as app_module
+import endpoint_pulse.app as app_module
 
 
 @pytest.fixture()

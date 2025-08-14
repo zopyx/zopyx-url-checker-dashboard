@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-import main as app_module
+import endpoint_pulse.app as app_module
 
 
 
@@ -18,7 +18,7 @@ def client(monkeypatch):
     with tempfile.TemporaryDirectory() as tmpdir:
         db_path = Path(tmpdir) / "test.sqlite3"
         monkeypatch.setenv("DB_FILE", str(db_path))
-        from main import app  # import after env set
+        from endpoint_pulse.app import app  # import after env set
         yield WrappedTestClient(app)
 
 

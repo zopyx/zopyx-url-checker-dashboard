@@ -64,7 +64,13 @@ def e2e_server():
 
 @pytest.mark.playwright
 async def test_e2e_add_and_delete_urls(page, e2e_server):
-    breakpoint()
+    """
+    End-to-end test for the web UI. It tests the following:
+    - Adding a folder
+    - Adding two URLs to the folder
+    - Deleting the URLs
+    - Verifying that the URLs are deleted
+    """
     base = e2e_server
     await page.goto(base + "/")
 
@@ -88,8 +94,6 @@ async def test_e2e_add_and_delete_urls(page, e2e_server):
     await add_node("A2")
 
     # Select both checkboxes and delete selected
-    await page.get_by_role("checkbox", name="Select all").check() if False else None  # fallback
-    # Use table checkboxes
     boxes = await page.query_selector_all("input.node-checkbox")
     for b in boxes:
         await b.check()
@@ -100,4 +104,5 @@ async def test_e2e_add_and_delete_urls(page, e2e_server):
     await page.get_by_text("E2E Folder").click()
     # Short wait and check that there is 'No URLs' text or table body empty
     content = await page.content()
-    assert "No URLs in this folder yet" in content or "node-checkbox" not in content
+    assert "No URLs in this folder yet" in content
+
