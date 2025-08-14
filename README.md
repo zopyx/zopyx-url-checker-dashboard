@@ -125,3 +125,5 @@ Data and configuration are stored in a local SQLite database at `data.sqlite3` i
 ## Author
 
 Andreas Jung <info@zopyx.com>
+
+This experiment was conducted using PyCharm, Junie, and GPT-5.
