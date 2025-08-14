@@ -1,3 +1,4 @@
+[![CI](https://github.com/zopyx/zopyx-url-checker-dashboard/actions/workflows/tests.yml/badge.svg)](https://github.com/zopyx/zopyx-url-checker-dashboard/actions/workflows/tests.yml)
 # Endpoint Pulse
 
 Project URL: https://github.com/zopyx/zopyx-url-checker-dashboard
