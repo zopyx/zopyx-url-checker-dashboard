@@ -584,7 +584,7 @@
                       <!-- Average line -->
                       {% if chart.avg_y is not none %}
                         <line x1="0" y1="{{ chart.avg_y }}" x2="{{ _W }}" y2="{{ chart.avg_y }}" stroke="var(--bs-danger)" stroke-width="1" stroke-dasharray="4 3" />
-                        <text x="{{ chart.width - chart.margin_right }}" y="{{ chart.avg_y - 4 }}" fill="var(--bs-danger)" font-size="10" text-anchor="end">avg {{ chart.avg_ms }} ms</text>
+                        <text x="{{ _W - _MR }}" y="{{ chart.avg_y - 4 }}" fill="var(--bs-danger)" font-size="10" text-anchor="end">avg {{ chart.avg_ms }} ms</text>
                       {% endif %}
 
                       <!-- Bars -->
@@ -594,13 +594,13 @@
                         </rect>
                         <!-- X label (thinned by step) -->
                         {% if b.show_xlabel %}
-                        <text x="{{ b.x + (b.width/2) }}" y="{{ chart.baseline_y + 12 }}" fill="var(--bs-secondary-color)" font-size="9" text-anchor="middle">{{ b.xlabel }}</text>
+                        <text x="{{ b.x + (b.width/2) }}" y="{{ _BL + 12 }}" fill="var(--bs-secondary-color)" font-size="9" text-anchor="middle">{{ b.xlabel }}</text>
                         {% endif %}
                       {% endfor %}
 
                       <!-- Axes -->
-                      <line x1="{{ chart.margin_left }}" y1="{{ chart.baseline_y }}" x2="{{ chart.width - chart.margin_right }}" y2="{{ chart.baseline_y }}" stroke="var(--bs-border-color)" stroke-width="1" />
-                      <line x1="{{ chart.margin_left }}" y1="{{ chart.margin_top }}" x2="{{ chart.margin_left }}" y2="{{ chart.baseline_y }}" stroke="var(--bs-border-color)" stroke-width="1" />
+                      <line x1="{{ _ML }}" y1="{{ _BL }}" x2="{{ _W - _MR }}" y2="{{ _BL }}" stroke="var(--bs-border-color)" stroke-width="1" />
+                      <line x1="{{ _ML }}" y1="{{ _MT }}" x2="{{ _ML }}" y2="{{ _BL }}" stroke="var(--bs-border-color)" stroke-width="1" />
                     </svg>
                   </div>
                   <div class="small text-muted mt-2">

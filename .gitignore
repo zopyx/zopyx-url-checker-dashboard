@@ -1,1 +1,6 @@
 *__pycache__*
+.idea
+.coverage
+*.sqlite3
+pycharm.log
+*.sw*
