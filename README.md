@@ -25,12 +25,23 @@ Typical use cases include health checking public endpoints, QA/staging links, an
 
 ## Installation
 1) Ensure Python 3.12 is installed.
-2) Create and activate a virtual environment, then install dependencies:
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+2) **Recommended:** Use `uv` for faster and more reliable dependency management.
+   Install `uv`:
+   ```bash
+   pip install uv
+   ```
+   Then, create and activate a virtual environment, and install dependencies:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   uv sync
+   ```
+   Alternatively, using `pip`:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
 ### Installing the package from TestPyPI
 When installing from TestPyPI, most third-party dependencies are not available on TestPyPI. Use the main PyPI as an extra index so pip can resolve dependencies like FastAPI and setuptools from PyPI while fetching this package from TestPyPI:
