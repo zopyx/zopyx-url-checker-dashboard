@@ -58,7 +58,7 @@ Note: We constrain FastAPI to < 1.0 to avoid a known problematic fastapi==1.0 bu
 ## Running the App
 Start the development server with auto-reload:
 ```bash
-uvicorn main:app --reload
+uvicorn endpoint_pulse.app:app --reload
 ```
 Or use the packaged console script (after installing the package):
 ```bash
