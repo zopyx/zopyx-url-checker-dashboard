@@ -64,6 +64,7 @@ def e2e_server():
 
 @pytest.mark.playwright
 async def test_e2e_add_and_delete_urls(page, e2e_server):
+    breakpoint()
     base = e2e_server
     await page.goto(base + "/")
 
