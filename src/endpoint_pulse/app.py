@@ -1698,36 +1698,11 @@ async def form_test_selected_html(request: Request, folder_id: int, runs: Option
         for _ in range(runs_val):
             round_results = await _aprobes(active_urls, timeout_seconds=timeout_seconds)
             last_idx_to_result = {i: res for i, res in zip(active_indices, round_results)}
-            for i, res in zip(.venv/lib/python3.12/site-packages/greenlet/platform/cpp_ucontext.hactive_indices, round_results):
-                node = nodes[i]
-                m = dict(res)
-                m["id"] = node.get("id")
-                m["name"] = node.get("name")
-                m["url"] = node.get("url")
-                m["fetch"] = "parallel"
-                all_measurements.append(m)
+            
 
     # Aggregate stats across measurements
     stats_map: Dict[int, Dict[str, int]] = {}
-    if all_measurements:
-        buckets: Dict[int, List[int]] = {}
-        for m in all_measurements:
-            try:
-                nid = int(m.get("id") or 0)
-            except Exception:
-                nid = 0
-            if not nid:
-                continue
-            ms = m.get("elapsed_ms")
-            if isinstance(ms, int):
-                buckets.setdefault(nid, []).append(ms)
-        for nid, lst in buckets.items():
-            if lst:
-                stats_map[nid] = {
-                    "avg_ms": int(round(sum(lst) / len(lst))),
-                    "min_ms": int(min(lst)),
-                    "max_ms": int(max(lst)),
-                }
+    
 
     # Build table rows from the last run or skipped if inactive
     results: List[Dict[str, Any]] = []
@@ -1780,7 +1755,7 @@ async def form_test_selected_html(request: Request, folder_id: int, runs: Option
         "folders": data.get("folders", []),
         "selected_folder": f,
         "selected_node": None,
-.venv/lib/python3.12/site-packages/greenlet/platform/switch_arm32_gcc.h        "test_results": results,
+        "test_results": results,
         "chart": chart,
         "theme": theme,
         "timeout_seconds": timeout_seconds,

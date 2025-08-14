@@ -439,7 +439,7 @@
               </form>
               <div class="d-flex gap-2">
                 <form method="post" action="/nodes/{{ selected_node.id }}/test/html" class="m-0">
-                  <button type="submit" class="btn btn-outline-primary">Test</button>
+                  <button type="submit" class="btn btn-primary"><i class="bi bi-play-fill"></i> Test</button>
                 </form>
                 <form method="post" action="/nodes/{{ selected_node.id }}/duplicate" class="m-0">
                   <button type="submit" class="btn btn-outline-secondary">Duplicate</button>
@@ -773,6 +773,7 @@
       const bulkForm = document.getElementById('bulkDeleteForm');
       const deleteBtn = document.getElementById('delete-selected-btn');
       const testSelectedBtn = document.getElementById('test-selected-btn');
+      const runsSelectedOpenBtn = document.querySelector('.runs-selected-open-btn');
       const testSelectedForm = document.getElementById('testSelectedForm');
       function nodeCheckboxes() {
         return document.querySelectorAll('input.node-checkbox[form="bulkDeleteForm"]');
@@ -784,6 +785,7 @@
         const disabled = checkedCount() === 0;
         if (deleteBtn) deleteBtn.disabled = disabled;
         if (testSelectedBtn) testSelectedBtn.disabled = disabled;
+        if (runsSelectedOpenBtn) runsSelectedOpenBtn.disabled = disabled;
       }
       function populateSelectedIntoForm(form) {
         if (!form) return;
