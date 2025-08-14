@@ -28,6 +28,7 @@ dev = [
   "pytest-cov>=4.0",
   "pytest-playwright>=0.5",
   "playwright>=1.45",
+  "anyio>=4.0",
 ]
 
 [project.scripts]
