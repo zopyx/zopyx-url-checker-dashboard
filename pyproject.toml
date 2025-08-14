@@ -1,13 +1,17 @@
 
 [project]
 name = "endpoint-pulse"
-version = "0.2.2"
+version = "0.2.3"
 description = "Endpoint Pulse - a small FastAPI + Jinja app to organize and probe URLs"
 authors = [
   { name = "Andreas Jung <info@zopyx.com>"}
 ]
 readme = "README.md"
+license = {text = "WTFPL"}
 requires-python = ">=3.9"
+classifiers = [
+    "License :: OSI Approved :: The Unlicense (Unlicense)"
+]
 dependencies = [
   "fastapi>=0.111,<1.0",
   "uvicorn[standard]>=0.30",
