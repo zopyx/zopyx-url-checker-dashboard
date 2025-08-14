@@ -29,7 +29,7 @@ def _resolve_db_file() -> Path:
     env_data = os.environ.get("DATA_FILE")
     if env_data:
         return Path(env_data).with_suffix(".sqlite3")
-    return Path(__file__).parent / "data.sqlite3"
+    return Path("data.sqlite3")
 
 
 def _get_conn() -> sqlite3.Connection:
