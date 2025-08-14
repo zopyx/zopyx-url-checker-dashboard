@@ -1,5 +1,7 @@
-from fastapi.testclient import TestClient
 
+from fastapi.testclient import TestClient
+from unittest.mock import patch, MagicMock
+from endpoint_pulse.app import _get_ssl_cert_info, _probe_url
 
 def test_healthz(client: TestClient):
     res = client.get("/healthz")
@@ -80,3 +82,50 @@ def test_not_found_errors(client: TestClient):
     assert client.delete("/api/nodes/999").status_code == 404
     assert client.post("/api/nodes/999/test").status_code == 404
     assert client.post("/api/folders/999/test").status_code == 404
+
+@patch('ssl.create_default_context')
+@patch('socket.create_connection')
+def test_get_ssl_cert_info(mock_create_connection, mock_create_default_context):
+    # Test with non-https url
+    info = _get_ssl_cert_info("http://example.com")
+    assert info == {}
+
+    # Test with https url
+    mock_socket = MagicMock()
+    mock_ssock = MagicMock()
+    mock_ssock.getpeercert.return_value = {
+        'notAfter': 'Aug 14 12:00:00 2026 GMT'
+    }
+    mock_context = MagicMock()
+    mock_context.wrap_socket.return_value.__enter__.return_value = mock_ssock
+    mock_create_default_context.return_value = mock_context
+    mock_create_connection.return_value.__enter__.return_value = mock_socket
+
+    info = _get_ssl_cert_info("https://example.com")
+    assert info["ssl_valid"] is True
+    assert info["ssl_days_left"] > 0
+
+@patch('httpx.Client')
+def test_probe_url(mock_httpx_client):
+    # Test with successful response
+    mock_response = MagicMock()
+    mock_response.is_success = True
+    mock_response.status_code = 200
+    mock_httpx_client.return_value.__enter__.return_value.get.return_value = mock_response
+
+    result = _probe_url("https://example.com")
+    assert result["ok"] is True
+    assert result["status_code"] == 200
+
+    # Test with failed response
+    mock_response.is_success = False
+    mock_response.status_code = 500
+    result = _probe_url("https://example.com")
+    assert result["ok"] is False
+    assert result["status_code"] == 500
+
+    # Test with exception
+    mock_httpx_client.return_value.__enter__.return_value.get.side_effect = Exception("timeout")
+    result = _probe_url("https://example.com")
+    assert result["ok"] is False
+    assert result["error"] == "timeout"
