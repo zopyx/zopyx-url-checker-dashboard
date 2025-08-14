@@ -26,9 +26,9 @@ Typical use cases include health checking public endpoints, QA/staging links, an
 ## Installation
 1) Ensure Python 3.12 is installed.
 2) **Recommended:** Use `uv` for faster and more reliable dependency management.
-   Install `uv`:
+   Install `uv` (see [uv installation docs](https://astral.sh/docs/uv/installation) for more options):
    ```bash
-   pip install uv
+   curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
    Then, create and activate a virtual environment, and install dependencies:
    ```bash
